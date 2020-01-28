@@ -99,7 +99,7 @@ export const store = new Vuex.Store({
     async GET_JOURNEY() {
       let tmpArray = [];
       try {
-        let res = await axios.post('/api/ferry/MFFWebservices/MFFJourney', {
+        let res = await axios.post('https://www.majesticfastferry.com.sg:44326/MFFWebservices/MFFJourney', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888"
         });
@@ -151,7 +151,7 @@ export const store = new Vuex.Store({
     async GET_SCHEDULE_PRICE({ commit }, data) {
       commit("SET_LOADING", true);
       try {
-        let res = await axios.post('/api/ferry/MFFWebservices/MFFSchedule', {
+        let res = await axios.post('https://www.majesticfastferry.com.sg:44326/MFFWebservices/MFFSchedule', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888",
           TicketCategory: "Normal",
@@ -214,7 +214,7 @@ export const store = new Vuex.Store({
       }
     },
     async GET_COUNTRIES({ commit }) {
-      let res = await axios.get("/api/countries/rest/v2/all");
+      let res = await axios.get("https://restcountries.eu/rest/v2/all");
       let tmpArray = [];
       res.data.forEach(item => {
         tmpArray.push(item)
@@ -225,7 +225,7 @@ export const store = new Vuex.Store({
       commit("SET_LOADING", true);
       console.log(data);
       try {
-        let res = await axios.post('/api/ferry/MFFWebservices/MFFPassengerBooking', {
+        let res = await axios.post('https://www.majesticfastferry.com.sg:44326/MFFWebservices/MFFPassengerBooking', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888",
           BookingName: "test",
