@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { store } from "./store";
 import axios from "axios"
-import VueAxios from "vue-axios"
+import vueaxios from "vue-axios"
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import VueMoment from 'vue-moment'
 import Vuelidate from 'vuelidate'
@@ -13,7 +13,7 @@ import './assets/scss/custom.scss';
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
-Vue.use(VueAxios, axios)
+Vue.use(vueaxios, axios)
 Vue.use(VueMoment)
 Vue.use(Vuelidate)
 
