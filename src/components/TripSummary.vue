@@ -148,17 +148,22 @@ export default {
               : 0
         };
       } else {
-        ticket = {
-          departurePrice:
-            parseFloat(this.departSchedule.Price.NewPrice) *
-            this.searchQuery.TotalPax,
-          returnPrice:
-            this.searchQuery.JourneyType === 2 &&
-            this.returnSchedule.Price.NewPrice > 0
-              ? parseFloat(this.returnSchedule.Price.NewPrice) *
-                this.searchQuery.TotalPax
-              : 0
-        };
+        if (this.searchQuery.JourneyType === 1) {
+          ticket = {
+            departurePrice:
+              parseFloat(this.departSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax
+          };
+        } else if (this.searchQuery.JourneyType === 2) {
+          ticket = {
+            departurePrice:
+              parseFloat(this.departSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax,
+            returnPrice:
+              parseFloat(this.returnSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax
+          };
+        }
       }
 
       for (var key in ticket) {
@@ -171,29 +176,44 @@ export default {
     },
     totalFare() {
       var sum = 0;
+      var fare = {};
 
-      const fare = {
-        totalTicketPrice: this.ticketPrice,
-        departTerminalFee:
-          this.departSchedule.Price.NewDepartTerminalFee *
-          this.searchQuery.TotalPax,
-        returnTerminalFee:
-          this.searchQuery.JourneyType === 2 &&
-          this.returnSchedule.Price.NewPrice > 0
-            ? this.returnSchedule.Price.NewReturnTerminalFee *
-              this.searchQuery.TotalPax
+      if (this.searchQuery.JourneyType === 1) {
+        fare = {
+          totalTicketPrice: this.ticketPrice,
+          departTerminalFee:
+            this.departSchedule.Price.NewDepartTerminalFee *
+            this.searchQuery.TotalPax,
+          travelInsurance:
+            this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
+          expressClearance: this.clearance === true ? this.clearanceFee : 0
+        };
+      } else if (this.searchQuery.JourneyType === 2) {
+        fare = {
+          totalTicketPrice: this.ticketPrice,
+          departTerminalFee:
+            this.departSchedule.Price.NewDepartTerminalFee *
+            this.searchQuery.TotalPax,
+          returnTerminalFee:
+            this.searchQuery.JourneyType === 2 &&
+            this.returnSchedule.Price.NewPrice > 0
+              ? this.returnSchedule.Price.NewReturnTerminalFee *
+                this.searchQuery.TotalPax
+              : 0,
+          travelTax:
+            this.returnSchedule.Price.JourneyType === "2"
+              ? this.returnSchedule.Price.THKTaxFee * this.searchQuery.TotalPax
+              : 0,
+          bookingFee: this.returnSchedule.Price.BookingFee
+            ? this.returnSchedule.Price.BookingFee * this.searchQuery.TotalPax
             : 0,
-        travelTax:
-          this.returnSchedule.Price.JourneyType === "2"
-            ? this.returnSchedule.Price.THKTaxFee * this.searchQuery.TotalPax
-            : 0,
-        bookingFee: this.returnSchedule.Price.BookingFee
-          ? this.returnSchedule.Price.BookingFee * this.searchQuery.TotalPax
-          : 0,
-        travelInsurance:
-          this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
-        expressClearance: this.clearance === true ? this.clearanceFee : 0
-      };
+          travelInsurance:
+            this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
+          expressClearance: this.clearance === true ? this.clearanceFee : 0
+        };
+      } else {
+        return;
+      }
 
       for (var key in fare) {
         if (fare.hasOwnProperty(key)) {

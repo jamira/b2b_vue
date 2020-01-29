@@ -60,6 +60,7 @@
                 <b-form-invalid-feedback
                   v-if="!booking.nationality.required"
                 >Please state your passport name</b-form-invalid-feedback>
+                {{ booking.nationality.$model }}
               </b-form-group>
             </b-col>
           </b-form-row>
@@ -237,6 +238,8 @@ export default {
           PassportNo: data.passportNo,
           PassportName: data.passportName,
           BirthDate: this.$moment(data.birthdate).format("YYYY-MM-DD"),
+          BirthPlace: null,
+          Gender: null,
           Nationality: data.nationality,
           PassportExpiredDate: this.$moment(data.expiryDate).format(
             "YYYY-MM-DD"

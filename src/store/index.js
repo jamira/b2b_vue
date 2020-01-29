@@ -12,16 +12,6 @@ export const auth = () => {
   };
 };
 
-export const removeSGD = (obj) => {
-  for (var key in obj) {
-    if (typeof obj[key] === 'string') {
-      obj[key] = obj[key].replace("SGD", "");
-    }
-  }
-
-  return obj;
-};
-
 export const store = new Vuex.Store({
   state: {
     ferryDestinations: [],
@@ -32,7 +22,8 @@ export const store = new Vuex.Store({
     selectedReturn: "",
     countries: [],
     expressClearance: false,
-    travelInsurance: []
+    travelInsurance: [],
+    bookingDetails: {},
   },
   getters: {
     travelDestinations: state => {
@@ -46,14 +37,6 @@ export const store = new Vuex.Store({
     },
     loading: state => {
       return state.isLoading;
-    },
-    countries(state) {
-      return state.countries.map(country => {
-        return {
-          value: country.name,
-          text: country.name
-        };
-      });
     },
     clearance(state) {
       return state.expressClearance;
@@ -79,7 +62,6 @@ export const store = new Vuex.Store({
     SET_LOADING: (state, payload) => (state.isLoading = payload),
     SET_SELECTED_DEPART_SCHEDULE: (state, payload) => (state.selectedDeparture = payload),
     SET_SELECTED_RETURN_SCHEDULE: (state, payload) => (state.selectedReturn = payload),
-    SET_COUNTRIES: (state, payload) => (state.countries = payload),
     SET_EXPRESS_CLEARANCE: (state) => (state.expressClearance = !state.expressClearance),
     SET_HAS_INSURANCE(state, payload) {
       let findKey = state.travelInsurance.find(item => item.key === payload.key);
@@ -94,6 +76,7 @@ export const store = new Vuex.Store({
         });
       }
     },
+    SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
   },
   actions: {
     async GET_JOURNEY() {
@@ -143,7 +126,22 @@ export const store = new Vuex.Store({
         }
 
       } catch (error) {
-        console.log(error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('Error', error.message);
+        }
+        console.log(error.config);
       }
 
       store.commit("SET_JOURNEY", tmpArray);
@@ -174,17 +172,17 @@ export const store = new Vuex.Store({
             // set the pricing manually for B2B
             arrReference.Price.forEach(item => {
               if (item.JourneyType === "1") {
-                Vue.set(item, "NewPrice", "17.00");
+                Vue.set(item, "NewPrice", "12.00");
                 Vue.set(item, "NewDepartTerminalFee", "8.00");
 
               } else if (item.JourneyType === "2") {
-                Vue.set(item, "NewPrice", "3.40");
+                Vue.set(item, "NewPrice", "3.00");
                 Vue.set(item, "NewDepartTerminalFee", "8.00");
                 Vue.set(item, "NewReturnTerminalFee", "8.00");
-                Vue.set(item, "THKTaxFee", "13.00");
+                Vue.set(item, "THKTaxFee", "8.00");
 
                 if (departCode[0] === "TMF to TNJ" && returnCode[0] === "TNJ to TMF") {
-                  Vue.set(item, "NewPrice", "16.00");
+                  Vue.set(item, "NewPrice", "12.00");
                   Vue.set(item, "NewDepartTerminalFee", "8.00");
                   Vue.set(item, "NewReturnTerminalFee", "8.00");
                   Vue.set(item, "THKTaxFee", "13.00");
@@ -192,8 +190,8 @@ export const store = new Vuex.Store({
                 }
 
                 if (departCode[0] === "HBF to TBK" && returnCode[0] === "TBK to HBF") {
-                  Vue.set(item, "NewPrice", "19.50");
-                  Vue.set(item, "NewPriceChild", "14.50");
+                  Vue.set(item, "NewPrice", "17.50");
+                  Vue.set(item, "NewPriceChild", "12");
                   Vue.set(item, "NewDepartTerminalFee", "0.00");
                   Vue.set(item, "NewReturnTerminalFee", "0.00");
                   Vue.set(item, "THKTaxFee", "21.00");
@@ -212,14 +210,6 @@ export const store = new Vuex.Store({
       } catch (error) {
         console.log(error);
       }
-    },
-    async GET_COUNTRIES({ commit }) {
-      let res = await axios.get("/api/countries/rest/v2/all");
-      let tmpArray = [];
-      res.data.forEach(item => {
-        tmpArray.push(item)
-      })
-      commit("SET_COUNTRIES", tmpArray);
     },
     async CREATE_BOOKING({ commit }, data) {
       commit("SET_LOADING", true);
@@ -243,7 +233,11 @@ export const store = new Vuex.Store({
           Passenger: data.Passenger
         });
 
-        console.log(res);
+        console.log(res)
+        if (res.status === 200) {
+          commit("SET_BOOKING_DETAILS", res);
+          commit("SET_LOADING", false);
+        }
 
       } catch (error) {
         console.log(error);
