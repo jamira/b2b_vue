@@ -82,7 +82,7 @@ export const store = new Vuex.Store({
     async GET_JOURNEY() {
       let tmpArray = [];
       try {
-        let res = await axios.post('/api/ferry/MFFWebservices/MFFJourney', {
+        let res = await axios.post('https://www.majesticfastferry.com.sg:44326/MFFWebservices/MFFJourney', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888"
         });

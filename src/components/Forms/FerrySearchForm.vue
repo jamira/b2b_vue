@@ -92,14 +92,14 @@
         <b-col xl="1" md="12">
           <b-form-group id="adult" label="Adult" label-for="adult">
             <b-form-select v-model="totalPax.adult">
-              <b-form-select-option v-for="n in 15" :key="n" :value="n">{{ n }}</b-form-select-option>
+              <b-form-select-option v-for="(n, i) in 15" :key="n" :value="i">{{ i }}</b-form-select-option>
             </b-form-select>
           </b-form-group>
         </b-col>
         <b-col xl="1" md="12">
           <b-form-group id="child" label="Child" label-for="child">
             <b-form-select v-model="totalPax.child">
-              <b-form-select-option v-for="n in 15" :key="n" :value="n">{{ n }}</b-form-select-option>
+              <b-form-select-option v-for="(n, i) in 15" :key="n" :value="i">{{ i }}</b-form-select-option>
             </b-form-select>
           </b-form-group>
         </b-col>
