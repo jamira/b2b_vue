@@ -19,9 +19,9 @@ export const store = new Vuex.Store({
     isLoading: false,
     selectedDeparture: "",
     selectedReturn: "",
-    countries: [],
     expressClearance: false,
     travelInsurance: [],
+    errorMessage: [],
     bookingDetails: {},
   },
   getters: {
@@ -49,6 +49,9 @@ export const store = new Vuex.Store({
     insurance: state => {
       return state.travelInsurance;
     },
+    bookingDetails: state => {
+      return state.bookingDetails;
+    }
   },
   mutations: {
     SET_JOURNEY: (state, payload) => (state.ferryDestinations = payload),
@@ -76,6 +79,7 @@ export const store = new Vuex.Store({
       }
     },
     SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
+    SET_ERROR_MSG: (state, payload) => state.message.push(payload)
   },
   actions: {
     async GET_JOURNEY() {
@@ -212,7 +216,6 @@ export const store = new Vuex.Store({
     },
     async CREATE_BOOKING({ commit }, data) {
       commit("SET_LOADING", true);
-      console.log(data);
       try {
         let res = await http.post('/api/ferry/MFFWebservices/MFFPassengerBooking', {
           Username: "thktourthk",
@@ -232,9 +235,8 @@ export const store = new Vuex.Store({
           Passenger: data.Passenger
         });
 
-        console.log(res)
         if (res.status === 200) {
-          commit("SET_BOOKING_DETAILS", res);
+          commit("SET_BOOKING_DETAILS", res.data);
           commit("SET_LOADING", false);
         }
 

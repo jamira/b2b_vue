@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="md" type="light" variant="light" class="shadow topbar mb-4 static-top">
     <b-navbar-brand>
-      <b-img src fluid alt="THK Tour"></b-img>
+      <b-img :src="logo" v-bind="mainProps" fluid alt="THK Tour"></b-img>
     </b-navbar-brand>
 
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -23,7 +23,21 @@
 </template>
 
 <script>
-export default {};
+import logo from "../assets/logo.png";
+export default {
+  name: "TopNavBar",
+  data() {
+    return {
+      logo: logo,
+      mainProps: {
+        center: true,
+        width: 80,
+        height: 80,
+        class: "my-5"
+      }
+    };
+  }
+};
 </script>
 
 <style>

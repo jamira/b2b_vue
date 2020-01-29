@@ -2,6 +2,12 @@
   <b-row>
     <b-col xl="8" md="12">
       <b-form @submit.prevent="onSubmit">
+        <b-alert variant="danger" fade :show="showAlert">
+          <ul class="list-unstyled mb-0">
+            <li v-for="(error, key) in message" :key="key">{{ error }}</li>
+          </ul>
+        </b-alert>
+
         <b-card class="shadow mb-4" header="Booking Information" header-tag="div">
           <b-form-row>
             <b-col xl="4" md="12">
@@ -11,7 +17,8 @@
                 label-for="booking-name"
                 label-size="sm"
               >
-                <b-form-input id="input-1" v-model="bookingName" trim></b-form-input>
+                <b-form-input v-model="$v.bookingName.$model" :class="status(bookingName)" trim></b-form-input>
+                <b-form-invalid-feedback v-if="!bookingName.required">Please state booking name</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
           </b-form-row>
@@ -32,11 +39,12 @@
                   v-model="booking.passportName.$model"
                   :name="'passenger_name_' + index"
                   :id="'passenger_name_' + index"
+                  :class="status(booking.passportName)"
                   trim
                 ></b-form-input>
                 <b-form-invalid-feedback
                   v-if="!booking.passportName.required"
-                >Please state your passport name</b-form-invalid-feedback>
+                >Please state passport name</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
 
@@ -47,20 +55,24 @@
                   v-model="booking.passportNo.$model"
                   :name="'passenger_no_' + index"
                   :id="'passenger_no_' + index"
+                  :class="status(booking.passportNo)"
                   trim
                 ></b-form-input>
                 <b-form-invalid-feedback
                   v-if="!booking.passportNo.required"
-                >Please state your passport name</b-form-invalid-feedback>
+                >Please state passport no</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
             <b-col xl="4" md="12">
               <b-form-group label="Nationality" label-size="sm">
-                <b-form-select v-model="booking.nationality.$model" :options="countries"></b-form-select>
+                <b-form-select
+                  v-model="booking.nationality.$model"
+                  :options="countries"
+                  :class="status(booking.nationality)"
+                ></b-form-select>
                 <b-form-invalid-feedback
                   v-if="!booking.nationality.required"
-                >Please state your passport name</b-form-invalid-feedback>
-                {{ booking.nationality.$model }}
+                >Please state nationality</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
           </b-form-row>
@@ -73,10 +85,9 @@
                   input-class="form-control"
                   placeholder="Select date"
                   format="D MMMM YYYY"
+                  :class="status(booking.birthdate)"
                 ></date-picker>
-                <b-form-invalid-feedback
-                  v-if="!booking.birthdate.required"
-                >Please state your passport name</b-form-invalid-feedback>
+                <b-form-invalid-feedback v-if="!booking.birthdate.required">Please state birthdate</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
 
@@ -87,7 +98,9 @@
                   input-class="form-control"
                   placeholder="Select date"
                   format="D MMMM YYYY"
+                  :class="status(booking.dateIssue)"
                 ></date-picker>
+                <b-form-invalid-feedback v-if="!booking.dateIssue.required">Please state issue date</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
 
@@ -99,7 +112,11 @@
                   input-class="form-control"
                   placeholder="Select date"
                   format="D MMMM YYYY"
+                  :class="status(booking.expiryDate)"
                 ></date-picker>
+                <b-form-invalid-feedback
+                  v-if="!booking.expiryDate.required"
+                >Please state expiry date</b-form-invalid-feedback>
               </b-form-group>
             </b-col>
           </b-form-row>
@@ -143,6 +160,7 @@ import { required } from "vuelidate/lib/validators";
 import DatePicker from "vue2-datepicker";
 import TripSummary from "../TripSummary";
 import { mapGetters } from "vuex";
+import countries from "../../assets/countries.json";
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 export default {
@@ -154,6 +172,7 @@ export default {
   data() {
     return {
       bookingName: "",
+      message: [],
       bookings: [
         {
           passportName: "",
@@ -176,6 +195,9 @@ export default {
     };
   },
   validations: {
+    bookingName: {
+      required
+    },
     bookings: {
       $each: {
         passportNo: { required },
@@ -190,21 +212,57 @@ export default {
   },
   computed: {
     ...mapGetters([
-      "countries",
       "searchQuery",
       "loading",
       "departSchedule",
       "returnSchedule",
       "clearance",
-      "insurance"
-    ])
+      "insurance",
+      "bookingDetails"
+    ]),
+    countries() {
+      return countries.map(country => {
+        return {
+          value: country.nationality,
+          text: country.en_short_name
+        };
+      });
+    },
+    showAlert() {
+      return this.message.length > 0 ? true : false;
+    }
   },
   methods: {
     onSubmit() {
+      this.message = [];
       this.$v.$touch();
-      let bookings = this.createBooking();
 
-      this.$store.dispatch("CREATE_BOOKING", bookings);
+      if (!this.$v.bookings.$error) {
+        let bookings = this.createBooking();
+
+        for (let index = 0; index < bookings.Passenger.length; index++) {
+          const field = bookings.Passenger[index];
+          if (field.PassportIssueDate < field.BirthDate) {
+            this.message.push(
+              "Birthdate shouldn't be less than on passport date issue."
+            );
+
+            return;
+          }
+        }
+
+        this.$store.dispatch("CREATE_BOOKING", bookings);
+      }
+    },
+    checkBooking() {
+      this.message = [];
+      for (const key in this.bookingDetails) {
+        const dataElement = this.bookingDetails[key];
+        if (dataElement.Status === "Error") {
+          this.message.push(dataElement.Message);
+          return;
+        }
+      }
     },
     onChange(event, booking, key) {
       const data = {
@@ -278,14 +336,16 @@ export default {
       this.$store.commit("SET_EXPRESS_CLEARANCE", event);
     },
     status(validation) {
-      if (validation.$error) {
-        return false;
-      }
+      return validation.$error
+        ? "is-invalid"
+        : validation.$dirty
+        ? "is-valid"
+        : "";
     }
   },
   created() {
     this.createFields();
-    this.$store.dispatch("GET_COUNTRIES");
+    this.checkBooking();
   }
 };
 </script>
