@@ -230,6 +230,19 @@ export default {
     },
     showAlert() {
       return this.message.length > 0 ? true : false;
+    },
+    checkBooking() {
+      var status = "";
+      for (let index = 0; index < this.bookingDetails.length; index++) {
+        const dataElement = this.bookingDetails[index];
+        if (dataElement.Status === "Error") {
+          status = dataElement.Message;
+        } else {
+          status = true;
+        }
+      }
+
+      return status;
     }
   },
   methods: {
@@ -252,16 +265,6 @@ export default {
         }
 
         this.$store.dispatch("CREATE_BOOKING", bookings);
-      }
-    },
-    checkBooking() {
-      this.message = [];
-      for (const key in this.bookingDetails) {
-        const dataElement = this.bookingDetails[key];
-        if (dataElement.Status === "Error") {
-          this.message.push(dataElement.Message);
-          return;
-        }
       }
     },
     onChange(event, booking, key) {
@@ -345,7 +348,15 @@ export default {
   },
   created() {
     this.createFields();
-    this.checkBooking();
+  },
+  watch: {
+    checkBooking(status) {
+      if (status === true) {
+        this.$router.push({ path: "booking", query: { create: "success" } });
+      } else {
+        this.message.push(status);
+      }
+    }
   }
 };
 </script>

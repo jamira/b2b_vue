@@ -23,6 +23,9 @@ export const store = new Vuex.Store({
     travelInsurance: [],
     errorMessage: [],
     bookingDetails: {},
+    post: [],
+    token: "",
+    reservations: []
   },
   getters: {
     travelDestinations: state => {
@@ -79,10 +82,13 @@ export const store = new Vuex.Store({
       }
     },
     SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
-    SET_ERROR_MSG: (state, payload) => state.message.push(payload)
+    SET_ERROR_MSG: (state, payload) => state.message.push(payload),
+    SET_POST: (state, payload) => (state.post = payload),
+    SET_TOKEN: (state, payload) => (state.token = payload),
+    SET_RESERVATIONS: (state, payload) => (state.reservations = payload),
   },
   actions: {
-    async GET_JOURNEY() {
+    async GET_JOURNEY({ commit }) {
       let tmpArray = [];
       try {
         let res = await http.post('/api/ferry/MFFWebservices/MFFJourney', {
@@ -132,7 +138,7 @@ export const store = new Vuex.Store({
         console.log('Error', error.message);
       }
 
-      store.commit("SET_JOURNEY", tmpArray);
+      commit("SET_JOURNEY", tmpArray);
     },
     async GET_SCHEDULE_PRICE({ commit }, data) {
       commit("SET_LOADING", true);
@@ -229,6 +235,57 @@ export const store = new Vuex.Store({
         console.log(error);
       }
 
+    },
+    async GET_POST({ commit }) {
+      commit("SET_LOADING", true);
+      try {
+        let res = await http.get("https://jsonplaceholder.typicode.com/posts");
+        let tmpArray = [];
+        for (const key in res.data) {
+          if (res.data.hasOwnProperty(key)) {
+            var dataField = res.data[key];
+            dataField.isShow = false;
+            tmpArray.push(dataField)
+          }
+        }
+        commit("SET_POST", tmpArray);
+        commit("SET_LOADING", false);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async LOG_ME_IN({ commit }) {
+      try {
+        let res = await http.post("/thk/auth/login", {
+          username: "jamerey",
+          password: "thkpassword"
+        });
+        localStorage.setItem('token', res.data.payload.token);
+        commit("SET_TOKEN", res.data.payload.token);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async INSERT_RESERVATION({ commit }, data) {
+      try {
+        let res = await http.post("/thk/reservations", data);
+        console.log(commit + " - " + res);
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+    async GET_RESERVATIONS({ commit }) {
+      try {
+        let res = await http.get("/thk/reservations");
+        let tmpArray = [];
+        res.data.payload.reservations.forEach(item => {
+          tmpArray.push(item);
+        });
+
+        commit("SET_RESERVATIONS", tmpArray);
+      } catch (error) {
+        console.log(error.message);
+      }
     }
   },
   modules: {

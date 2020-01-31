@@ -1,52 +1,20 @@
 <template>
-  <b-row>
-    <b-col xl="6" md="12">
-      <b-card class="shadow mb-4" header="Booking Details" header-tag="div">
-        <b-list-group v-for="(booking, key) in bookingDetails" :key="key">
-          <b-list-group-item class="d-flex justify-content-between py-2 border-bottom tiket-price">
-            <span class="text-muted mb-1 d-block">Booking Name</span>
-            <span>{{ booking.BookingName }}</span>
-          </b-list-group-item>
-
-          <b-list-group-item
-            class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
-          >
-            <span class="text-muted mb-1 d-block">Booking Code</span>
-            <span>{{ booking.BookingCode }}</span>
-          </b-list-group-item>
-
-          <b-list-group-item class="py-2 border-bottom depart-trip">
-            <div class="float-left">
-              <strong class="text-muted mb-2 d-block">Depart Trip</strong>
-              <span class="d-block">
-                {{ $moment(booking.TravelDate).format("ddd, DD MMMM YYYY") }}
-                <strong>{{ booking.TravelTime}}</strong>
-              </span>
-              <span class="d-block">{{ booking.JourneyCode}}</span>
-            </div>
-
-            <div class="float-right" v-if="booking.JourneyType === '2'">
-              <span class="text-muted mb-2 d-block">Return Trip</span>
-              <span class="d-block" v-if="booking.ReturnTravelDate">
-                {{ $moment(booking.ReturnTravelDate).format("ddd, DD MMMM YYYY") }}
-                <span
-                  v-if="booking.ReturnTravelTime"
-                >{{ booking.ReturnTravelTime}}</span>
-              </span>
-              <span class="d-block" v-if="booking.ReturnJourneyCode">{{ booking.ReturnJourneyCode}}</span>
-            </div>
-          </b-list-group-item>
-        </b-list-group>
-      </b-card>
-    </b-col>
-    <b-col xl="6" md="12">
-      <b-card class="shadow mb-4" header="Passenger Details" header-tag="div">
-        <ol class="py-0" v-if="booking.PassengerList.length">
-          <li v-for="(passenger, key) in booking.PassengerList" :key="key">{{ passenger }}</li>
-        </ol>
-      </b-card>
-    </b-col>
-  </b-row>
+  <div>
+    <h1 class="h2 text-gray-800 mb-4">Success</h1>
+    <b-card class="shadow mb-4" header="Booking Details" header-tag="div">
+      <b-table striped hover :items="formattedBookingDetails"></b-table>
+    </b-card>
+    <b-card class="shadow mb-4" header="Travel Details" header-tag="div">
+      <b-table striped hover :items="formattedTravelDetails"></b-table>
+    </b-card>
+    <b-card class="shadow mb-4" header="Passenger Details" header-tag="div">
+      <ol v-for="(booking, key) in bookingDetails" :key="key">
+        <li v-for="(name, key) in booking.PassengerList" :key="key">
+          <span class="d-block">{{ name.PassportName }} ({{ name.PassportNo }})</span>
+        </li>
+      </ol>
+    </b-card>
+  </div>
 </template>
 
 <script>
@@ -54,7 +22,81 @@ import { mapGetters } from "vuex";
 export default {
   name: "Passenger",
   computed: {
-    ...mapGetters(["bookingDetails"])
+    ...mapGetters(["bookingDetails", "searchQuery"]),
+    formattedBookingDetails() {
+      return this.bookingDetails.map(item => {
+        return {
+          booking_name: item.BookingName,
+          booking_code: item.BookingCode,
+          booking_date: this.$moment().format("dddd. DD MMMM. YYYY"),
+          status: "Confirmed"
+        };
+      });
+    },
+    formattedTravelDetails() {
+      return this.bookingDetails.map(item => {
+        return {
+          depature:
+            item.JourneyCode +
+            " (" +
+            this.$moment(item.TravelDate).format("dd. DD MMM. YYYY") +
+            " " +
+            item.TravelTime +
+            ")",
+          arrival:
+            item.JourneyType === "2"
+              ? item.ReturnJourneyCode +
+                " (" +
+                this.$moment(item.ReturnTravelDate).format(
+                  "dddd. DD MMMM. YYYY"
+                ) +
+                " " +
+                item.ReturnTravelTime +
+                ")"
+              : "Not Available",
+          seat_category: item.SeatCategory
+        };
+      });
+    }
+  },
+  methods: {
+    saveData() {
+      let dataFields = {
+        reservation: {
+          status: "confirmed",
+          booking_reference: this.bookingDetails[0].BookingCode,
+          journey_type: this.bookingDetails[0].JourneyType,
+          travel_date: this.bookingDetails[0].TravelDate,
+          return_date:
+            this.bookingDetails[0].JourneyType === "2"
+              ? this.bookingDetails[0].ReturnTravelDate
+              : "",
+          departure_port: this.bookingDetails[0].JourneyCode,
+          return_port:
+            this.bookingDetails[0].JourneyType === "2"
+              ? this.bookingDetails[0].ReturnJourneyCode
+              : "",
+          total_pax: this.searchQuery.TotalPax,
+          payment: 50.0,
+          booking_date: this.$moment().format("YYYY-MM-DD"),
+          travel_insurance: false,
+          express_clearance: false
+        },
+        customer: {
+          name: "Johnny Applessed",
+          passport_no: "ET5311892",
+          nationality: "Singaporean",
+          birth_date: "1990-08-26",
+          issue_date: "2014-08-20",
+          passport_expiry: "2020-08-20"
+        }
+      };
+
+      this.$store.dispatch("INSERT_RESERVATION", dataFields);
+    }
+  },
+  created() {
+    this.saveData();
   }
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="search-result-wrap">
     <b-row v-for="(schedule, key) in schedules" :key="key" class="clearfix">
-      <b-col :xl="searchQuery.JourneyType === 1 ? 12 : 6" md="12">
+      <b-col :xl="searchQuery.JourneyType === 1 ? 10 : 5" md="12">
         <b-card class="shadow mb-4" header-tag="div" no-body>
           <template v-slot:header>
             <b-link v-b-toggle="'depature_result'">
@@ -20,12 +20,11 @@
                 show
                 variant="warning"
               >No schedule available for {{ searchQuery.JourneyName }}</b-alert>
-              <b-button variant="secondary" class="mt-3" @click="booking">Add Booking</b-button>
             </b-card-body>
           </b-collapse>
         </b-card>
       </b-col>
-      <b-col xl="6" md="12" v-show="searchQuery.JourneyType === 2">
+      <b-col xl="5" md="12" v-show="searchQuery.JourneyType === 2">
         <b-card class="shadow mb-4" header-tag="div" no-body>
           <template v-slot:header>
             <b-link v-b-toggle="'return_result'">
@@ -48,6 +47,9 @@
           </b-collapse>
         </b-card>
       </b-col>
+      <b-col xl="2" md="12">
+        <b-button variant="secondary" @click="booking" :disabled="isDisabled" block>Create Booking</b-button>
+      </b-col>
     </b-row>
   </div>
 </template>
@@ -63,11 +65,49 @@ export default {
     ReturnSchedule
   },
   computed: {
-    ...mapGetters(["schedules", "searchQuery", "loading"])
+    ...mapGetters([
+      "schedules",
+      "searchQuery",
+      "loading",
+      "departSchedule",
+      "returnSchedule"
+    ]),
+    isDisabled() {
+      var state = false;
+      const chkDepartObj = this.isEmpty(this.departSchedule);
+      const chkReturnObj = this.isEmpty(this.returnSchedule);
+      let journeyType = this.searchQuery.JourneyType;
+
+      if (journeyType == 1) {
+        if (chkDepartObj == true) {
+          state = true;
+        } else {
+          state = false;
+        }
+      } else if (journeyType == 2) {
+        if (chkDepartObj != false || chkReturnObj != false) {
+          state = true;
+        } else {
+          state = false;
+        }
+      } else {
+        return;
+      }
+
+      return state;
+    }
   },
   methods: {
     booking() {
       this.$router.push({ path: "booking", query: { create: "ferry" } });
+    },
+    isEmpty(obj) {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          return false;
+        }
+      }
+      return true;
     }
   }
 };

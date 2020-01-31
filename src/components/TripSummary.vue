@@ -64,7 +64,7 @@
       class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Clearance Express</span>
-      <span>{{ clearanceFee | currency }}</span>
+      <span>{{ clearanceFee * searchQuery.TotalPax | currency }}</span>
     </b-list-group-item>
 
     <b-list-group-item class="py-2 border-bottom depart-trip text-center">
@@ -186,7 +186,10 @@ export default {
             this.searchQuery.TotalPax,
           travelInsurance:
             this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
-          expressClearance: this.clearance === true ? this.clearanceFee : 0
+          expressClearance:
+            this.clearance === true
+              ? this.clearanceFee * this.searchQuery.TotalPax
+              : 0
         };
       } else if (this.searchQuery.JourneyType === 2) {
         fare = {
@@ -209,7 +212,10 @@ export default {
             : 0,
           travelInsurance:
             this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
-          expressClearance: this.clearance === true ? this.clearanceFee : 0
+          expressClearance:
+            this.clearance === true
+              ? this.clearanceFee * this.searchQuery.TotalPax
+              : 0
         };
       } else {
         return;
