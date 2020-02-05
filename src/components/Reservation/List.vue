@@ -15,9 +15,11 @@
         <div v-html="data.value"></div>
       </template>
       <template v-slot:cell(action)="row">
-        <b-link :to="{ name: 'view', params: {id: row.value }}">View</b-link>
+        <b-link :to="{ name: 'view', params: {id: row.value }}" class="mr-3">View</b-link>
+        <b-link @click.prevent="onCancel(row.value)">Cancel</b-link>
       </template>
     </b-table>
+    <pre>{{ isCancel }}</pre>
   </div>
 </template>
 
@@ -27,7 +29,8 @@ export default {
   name: "Reservations",
   data() {
     return {
-      checked1: null
+      checked1: null,
+      isCancel: ""
     };
   },
   components: {},
@@ -90,8 +93,24 @@ export default {
     fetchReservations() {
       this.$store.dispatch("GET_RESERVATIONS");
     },
-    toggleDetails(row) {
-      console.log(row);
+    onCancel(ID) {
+      this.isCancel = "";
+      this.$bvModal
+        .msgBoxConfirm(`Are you sure to cancel Booking ID ${ID}?`, {
+          centered: true,
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "danger",
+          okTitle: "Yes, Cancel",
+          cancelTitle: "No"
+        })
+        .then(res => {
+          this.isCancel = res;
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   },
   created() {

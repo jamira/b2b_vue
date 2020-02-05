@@ -80,6 +80,7 @@ export const store = new Vuex.Store({
   },
   actions: {
     async GET_JOURNEY({ commit }) {
+      commit("SET_LOADING", true);
       let tmpArray = [];
       try {
         let res = await http.post('/api/ferry/MFFWebservices/MFFJourney', {
@@ -130,6 +131,7 @@ export const store = new Vuex.Store({
       }
 
       commit("SET_JOURNEY", tmpArray);
+      commit("SET_LOADING", false);
     },
     async GET_SCHEDULE_PRICE({ commit }, data) {
       commit("SET_LOADING", true);
@@ -227,6 +229,15 @@ export const store = new Vuex.Store({
       }
 
     },
+    async CANCEL_BOOKING({ commit }) {
+      commit("SET_LOADING", true);
+      try {
+        let res = await http.post("/api/ferry/MFFWebservices/MFFCancelBooking");
+        console.log(res.data)
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async GET_POST({ commit }) {
       commit("SET_LOADING", true);
       try {
@@ -273,6 +284,7 @@ export const store = new Vuex.Store({
       // }
     },
     GET_RESERVATIONS({ commit }) {
+      commit("SET_LOADING", true);
       let tmpArray = [];
       http.get("/thk/reservations").then(res => {
         res.data.payload.reservations.forEach(item => {
@@ -283,6 +295,7 @@ export const store = new Vuex.Store({
       });
 
       commit("SET_RESERVATIONS", tmpArray);
+      commit("SET_LOADING", false);
 
       // try {
       //   let res = await http.get("/thk/reservations");
@@ -297,8 +310,10 @@ export const store = new Vuex.Store({
       // }
     },
     GET_RESERVATION_BY_ID({ commit }, ID) {
+      commit("SET_LOADING", true);
       http.get("/thk/reservations/" + ID).then(res => {
         commit("SET_RESERVATION_ID", res.data.payload.reservation);
+        commit("SET_LOADING", false);
       }).catch(error => {
         console.log(error.response.data);
       });

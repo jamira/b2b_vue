@@ -10,22 +10,28 @@ import Vuelidate from 'vuelidate'
 import VueCurrencyFilter from 'vue-currency-filter'
 
 import './assets/scss/custom.scss';
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VueAxios, axios)
 Vue.use(VueMoment)
 Vue.use(Vuelidate)
+// Vue.use(Loading, {
+//   color: '#7bc338',
+//   backgroundColor: '#000',
+//   opacity: 0.8,
+//   loader: 'dots'
+// });
 
-Vue.use(VueCurrencyFilter,
-  {
-    symbol: "$",
-    thousandsSeparator: ",",
-    fractionCount: 2,
-    fractionSeparator: ".",
-    symbolPosition: "front",
-    symbolSpacing: true
-  })
+Vue.use(VueCurrencyFilter, {
+  symbol: "$",
+  thousandsSeparator: ",",
+  fractionCount: 2,
+  fractionSeparator: ".",
+  symbolPosition: "front",
+  symbolSpacing: true
+});
 
 Vue.config.productionTip = false
 

@@ -9,9 +9,7 @@
     <b-collapse id="nav-collapse" is-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-nav-text>
-          <strong>Account Balance: {{currentUser.account_balance | currency }}</strong>
-        </b-nav-text>
+        <b-nav-item>Account Balance: {{currentUser.account_balance | currency }}</b-nav-item>
         <div class="topbar-divider d-none d-sm-block"></div>
         <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
