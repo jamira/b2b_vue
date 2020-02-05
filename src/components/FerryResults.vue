@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import DepartSchedule from "./Schedule/Departure";
 import ReturnSchedule from "./Schedule/Return";
 export default {
@@ -65,13 +65,13 @@ export default {
     ReturnSchedule
   },
   computed: {
-    ...mapGetters([
-      "schedules",
-      "searchQuery",
-      "loading",
-      "departSchedule",
-      "returnSchedule"
-    ]),
+    ...mapState({
+      bookingDetail: state => state.reservationById,
+      schedules: state => state.schedule,
+      searchQuery: state => state.searchQuery,
+      departSchedule: state => state.selectedDeparture,
+      returnSchedule: state => state.selectedReturn
+    }),
     isDisabled() {
       var state = false;
       const chkDepartObj = this.isEmpty(this.departSchedule);
@@ -95,10 +95,136 @@ export default {
       }
 
       return state;
+    },
+    ticketPrice() {
+      var sum = 0;
+      var ticket = {};
+
+      if (
+        this.searchQuery.JourneyName === "HarbourFront to Tanjung Balai" &&
+        this.searchQuery.JourneyReturnName === "Tanjung Balai to HarbourFront"
+      ) {
+        ticket = {
+          departurePriceAdult:
+            this.searchQuery.adult > 0
+              ? parseFloat(this.departSchedule.Price.NewPrice) *
+                this.searchQuery.adult
+              : 0,
+          departurePriceChild:
+            this.searchQuery.child > 0
+              ? parseFloat(this.departSchedule.Price.NewPriceChild) *
+                this.searchQuery.child
+              : 0,
+          returnPriceAdult:
+            this.searchQuery.adult > 0
+              ? parseFloat(this.returnSchedule.Price.NewPrice) *
+                this.searchQuery.adult
+              : 0,
+          returnPriceChild:
+            this.searchQuery.child > 0
+              ? parseFloat(this.returnSchedule.Price.NewPriceChild) *
+                this.searchQuery.child
+              : 0
+        };
+      } else {
+        if (this.searchQuery.JourneyType === 1) {
+          ticket = {
+            departurePrice:
+              parseFloat(this.departSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax
+          };
+        } else if (this.searchQuery.JourneyType === 2) {
+          ticket = {
+            departurePrice:
+              parseFloat(this.departSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax,
+            returnPrice:
+              parseFloat(this.returnSchedule.Price.NewPrice) *
+              this.searchQuery.TotalPax
+          };
+        }
+      }
+
+      for (var key in ticket) {
+        if (ticket.hasOwnProperty(key)) {
+          sum += parseFloat(ticket[key]);
+        }
+      }
+
+      return sum;
+    },
+    totalFare() {
+      var sum = 0;
+      var fare = {};
+
+      if (this.searchQuery.JourneyType === 1) {
+        fare = {
+          totalTicketPrice: this.ticketPrice,
+          departTerminalFee:
+            this.departSchedule.Price.NewDepartTerminalFee *
+            this.searchQuery.TotalPax
+        };
+      } else if (this.searchQuery.JourneyType === 2) {
+        fare = {
+          totalTicketPrice: this.ticketPrice,
+          departTerminalFee:
+            this.departSchedule.Price.NewDepartTerminalFee *
+            this.searchQuery.TotalPax,
+          returnTerminalFee:
+            this.searchQuery.JourneyType === 2 &&
+            this.returnSchedule.Price.NewPrice > 0
+              ? this.returnSchedule.Price.NewReturnTerminalFee *
+                this.searchQuery.TotalPax
+              : 0,
+          travelTax:
+            this.returnSchedule.Price.JourneyType === "2"
+              ? this.returnSchedule.Price.THKTaxFee * this.searchQuery.TotalPax
+              : 0,
+          bookingFee: this.returnSchedule.Price.BookingFee
+            ? this.returnSchedule.Price.BookingFee * this.searchQuery.TotalPax
+            : 0
+        };
+      } else {
+        return;
+      }
+
+      for (var key in fare) {
+        if (fare.hasOwnProperty(key)) {
+          sum += parseFloat(fare[key]);
+        }
+      }
+
+      return sum;
     }
   },
   methods: {
     booking() {
+      //set bookings
+      let bookingDetails = {
+        journeyType: this.searchQuery.JourneyType,
+        travelDate: this.departSchedule.TravelDate,
+        travelTime: this.departSchedule.TravelTime,
+        returnTravelDate:
+          this.searchQuery.JourneyType === 2
+            ? this.returnSchedule.ReturnTravelDate
+            : "",
+        returnTrvelTime:
+          this.searchQuery.JourneyType === 2
+            ? this.returnSchedule.ReturnTravelTime
+            : "",
+        journeyName: this.searchQuery.JourneyName,
+        returnJourneyName:
+          this.searchQuery.JourneyType === 2
+            ? this.searchQuery.ReturnJourneyName
+            : "",
+        totalPax: this.searchQuery.TotalPax,
+        adult: this.searchQuery.adult,
+        child: this.searchQuery.child,
+        ticketPrice: this.ticketPrice,
+        totalAmount: this.totalFare
+      };
+
+      this.$store.commit("SET_BOOKING", bookingDetails);
       this.$router.push({ path: "booking", query: { create: "ferry" } });
     },
     isEmpty(obj) {

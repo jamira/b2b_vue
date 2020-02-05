@@ -22,6 +22,11 @@ const routes = [
     path: '/reservations',
     name: 'reservations',
     component: () => import(/* webpackChunkName: "reservations" */ '../views/Reservations.vue'),
+    children: [
+      { path: '/reservations/list', component: () => import(/* webpackChunkName: "list" */ '../components/Reservation/List.vue') },
+      { path: '/reservations/view/:id', name: 'view', component: () => import(/* webpackChunkName: "view" */ '../components/Reservation/View.vue') },
+      { path: '/reservations/edit/:id', component: () => import(/* webpackChunkName: "edit" */ '../components/Reservation/Edit.vue') }
+    ]
   },
   {
     path: '/booking',

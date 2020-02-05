@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 export default {
   name: "DepartSchedule",
   props: ["schedule", "price"],
@@ -55,14 +55,15 @@ export default {
     },
     timezone(val) {
       if (!val) return;
-      const journey = this.travelDestinations.find(
-        item => item.JourneyName === val
-      );
+      const journey = this.journey.find(item => item.JourneyName === val);
       return journey.DepartCountry === "INDONESIA" ? "ID" : "SG";
     }
   },
   computed: {
-    ...mapGetters(["travelDestinations", "searchQuery"])
+    ...mapState({
+      journey: state => state.ferryDestinations,
+      searchQuery: state => state.searchQuery
+    })
   }
 };
 </script>

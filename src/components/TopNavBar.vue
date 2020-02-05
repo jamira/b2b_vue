@@ -9,10 +9,14 @@
     <b-collapse id="nav-collapse" is-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
+        <b-nav-text>
+          <strong>Account Balance: {{currentUser.account_balance | currency }}</strong>
+        </b-nav-text>
+        <div class="topbar-divider d-none d-sm-block"></div>
         <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
           <template v-slot:button-content>
-            <em>User</em>
+            <em>{{ currentUser.name }}</em>
           </template>
           <b-dropdown-item href="#">Profile</b-dropdown-item>
           <b-dropdown-item href="#">Sign Out</b-dropdown-item>
@@ -23,6 +27,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import logo from "../assets/logo.png";
 export default {
   name: "TopNavBar",
@@ -36,6 +41,11 @@ export default {
         class: "my-5"
       }
     };
+  },
+  computed: {
+    ...mapState({
+      currentUser: state => state.currentUser
+    })
   }
 };
 </script>

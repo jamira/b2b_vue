@@ -1,6 +1,7 @@
 <template>
-  <b-list-group>
-    <b-list-group-item class="py-2 border-bottom">
+  <b-list-group class="list-group-no-border">
+    <b-alert :show="noTerminalFees" variant="info">{{ noTerminalFees }}</b-alert>
+    <b-list-group-item class="py-1">
       <span
         class="text-muted mb-1 d-block"
       >{{ searchQuery.TotalPax > 1 ? 'Passengers' : 'Passenger'}}</span>
@@ -14,14 +15,14 @@
       >{{ searchQuery.child > 1 ? `${searchQuery.child} Children` : `${searchQuery.child} Child` }}</span>
     </b-list-group-item>
 
-    <b-list-group-item class="d-flex justify-content-between py-2 border-bottom tiket-price">
+    <b-list-group-item class="d-flex justify-content-between py-1 tiket-price">
       <span class="text-muted mb-1 d-block">Ticket Price(s)</span>
-      <span>{{ ticketPrice | currency }}</span>
+      <span>{{ summaryTrip.ticketPrice | currency }}</span>
     </b-list-group-item>
 
     <b-list-group-item
       v-if="departSchedule.Price.DepartTerminalFee"
-      class="d-flex justify-content-between py-2 border-bottom depart-terminal-fee"
+      class="d-flex justify-content-between py-1 depart-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Departure Terminal Fee(s)</span>
       <span>{{ departSchedule.Price.DepartTerminalFee ? departSchedule.Price.NewDepartTerminalFee * searchQuery.TotalPax : 0 | currency }}</span>
@@ -29,23 +30,23 @@
 
     <b-list-group-item
       v-if="searchQuery.JourneyType === 2 && returnSchedule.Price.NewReturnTerminalFee"
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
+      class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Return Terminal Fee(s)</span>
       <span>{{ returnSchedule.Price.NewReturnTerminalFee * searchQuery.TotalPax | currency }}</span>
     </b-list-group-item>
 
     <b-list-group-item
-      v-if="travelInsurance"
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
+      v-if="insurance"
+      class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Travel Insurance</span>
-      <span>{{ travelInsurance > 1 ? `${travelInsurance} passengers` : `${travelInsurance} passenger` }}</span>
+      <span>{{ insurance > 1 ? `${insurance} passengers` : `${insurance} passenger` }}</span>
     </b-list-group-item>
 
     <b-list-group-item
       v-if="searchQuery.JourneyType === 2 && returnSchedule.Price.THKTaxFee > 0"
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
+      class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Tax</span>
       <span>{{ returnSchedule.Price.THKTaxFee > 0 ? returnSchedule.Price.THKTaxFee * searchQuery.TotalPax : 0 | currency }}</span>
@@ -53,7 +54,7 @@
 
     <b-list-group-item
       v-if="searchQuery.JourneyType === 2 && returnSchedule.Price.BookingFee > 0"
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
+      class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Confirmation Fee</span>
       <span>{{ returnSchedule.Price.BookingFee > 0 ? returnSchedule.Price.BookingFee * searchQuery.TotalPax : 0 | currency }}</span>
@@ -61,13 +62,13 @@
 
     <b-list-group-item
       v-if="clearance === true"
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
+      class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Clearance Express</span>
-      <span>{{ clearanceFee * searchQuery.TotalPax | currency }}</span>
+      <span>{{ 10 * searchQuery.TotalPax | currency }}</span>
     </b-list-group-item>
 
-    <b-list-group-item class="py-2 border-bottom depart-trip text-center">
+    <b-list-group-item class="mt-3 py-1 border-bottom depart-trip text-center">
       <h5 class="text-muted mb-1 d-block">Depart Trip</h5>
       <span class="d-block">{{ $moment(searchQuery.TravelDate).format("ddd, DD MMM YYYY") }}</span>
       <span
@@ -83,160 +84,71 @@
       </div>
     </b-list-group-item>
 
-    <b-list-group-item
-      class="d-flex justify-content-between py-2 border-bottom return-terminal-fee"
-    >
-      <strong class="text-muted mb-1 d-block">Total Fare:</strong>
-      <h4 class="mb-0">{{ totalFare | currency }}</h4>
+    <b-list-group-item class="d-flex justify-content-between py-3 return-terminal-fee">
+      <strong class="text-muted mb-1 d-block">Total:</strong>
+      <h4 class="mb-0">{{ totalAmount | currency }}</h4>
     </b-list-group-item>
   </b-list-group>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 export default {
   name: "TripSummary",
-  data() {
-    return {
-      clearanceFee: 10
-    };
-  },
   computed: {
-    ...mapGetters([
-      "searchQuery",
-      "loading",
-      "clearance",
-      "departSchedule",
-      "returnSchedule",
-      "insurance",
-      "travelDestinations"
-    ]),
-    travelInsurance() {
-      const chkTrue = this.insurance.filter(
-        item => item.TravelInsurance === true
-      );
-      return chkTrue.length;
-    },
-    ticketPrice() {
+    ...mapState({
+      journey: state => state.ferryDestinations,
+      searchQuery: state => state.searchQuery,
+      departSchedule: state => state.selectedDeparture,
+      returnSchedule: state => state.selectedReturn,
+      clearance: state => state.expressClearance,
+      summaryTrip: state => state.bookings,
+      currentUser: state => state.currentUser,
+      totalAmount: state => state.totalAmount
+    }),
+    ...mapGetters(["insurance"]),
+    totalAmount() {
       var sum = 0;
-      var ticket = {};
+      const totalDues = {
+        currentTotal: this.summaryTrip.totalAmount,
+        isInsurance: this.insurance > 0 ? this.insurance * 5 : 0,
+        isExpress: this.clearance == true ? this.searchQuery.TotalPax * 10 : 0
+      };
 
+      for (var key in totalDues) {
+        if (totalDues.hasOwnProperty(key)) {
+          sum += parseFloat(totalDues[key]);
+        }
+      }
+
+      return sum;
+    },
+    noTerminalFees() {
+      var show = false;
       if (
         this.searchQuery.JourneyName === "HarbourFront to Tanjung Balai" &&
-        this.searchQuery.JourneyReturnName === "Tanjung Balai to HarbourFront"
+        this.searchQuery.ReturnJourneyName === "Tanjung Balai to HarbourFront"
       ) {
-        ticket = {
-          departurePriceAdult:
-            this.searchQuery.adult > 0
-              ? parseFloat(this.departSchedule.Price.NewPrice) *
-                this.searchQuery.adult
-              : 0,
-          departurePriceChild:
-            this.searchQuery.child > 0
-              ? parseFloat(this.departSchedule.Price.NewPriceChild) *
-                this.searchQuery.child
-              : 0,
-          returnPriceAdult:
-            this.searchQuery.adult > 0
-              ? parseFloat(this.returnSchedule.Price.NewPrice) *
-                this.searchQuery.adult
-              : 0,
-          returnPriceChild:
-            this.searchQuery.child > 0
-              ? parseFloat(this.returnSchedule.Price.NewPriceChild) *
-                this.searchQuery.child
-              : 0
-        };
-      } else {
-        if (this.searchQuery.JourneyType === 1) {
-          ticket = {
-            departurePrice:
-              parseFloat(this.departSchedule.Price.NewPrice) *
-              this.searchQuery.TotalPax
-          };
-        } else if (this.searchQuery.JourneyType === 2) {
-          ticket = {
-            departurePrice:
-              parseFloat(this.departSchedule.Price.NewPrice) *
-              this.searchQuery.TotalPax,
-            returnPrice:
-              parseFloat(this.returnSchedule.Price.NewPrice) *
-              this.searchQuery.TotalPax
-          };
-        }
+        show = true;
+        return `No Terminal Fee Charge for ${this.searchQuery.JourneyName} & ${this.searchQuery.ReturnJourneyName} Trip`;
       }
-
-      for (var key in ticket) {
-        if (ticket.hasOwnProperty(key)) {
-          sum += parseFloat(ticket[key]);
-        }
-      }
-
-      return sum;
-    },
-    totalFare() {
-      var sum = 0;
-      var fare = {};
-
-      if (this.searchQuery.JourneyType === 1) {
-        fare = {
-          totalTicketPrice: this.ticketPrice,
-          departTerminalFee:
-            this.departSchedule.Price.NewDepartTerminalFee *
-            this.searchQuery.TotalPax,
-          travelInsurance:
-            this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
-          expressClearance:
-            this.clearance === true
-              ? this.clearanceFee * this.searchQuery.TotalPax
-              : 0
-        };
-      } else if (this.searchQuery.JourneyType === 2) {
-        fare = {
-          totalTicketPrice: this.ticketPrice,
-          departTerminalFee:
-            this.departSchedule.Price.NewDepartTerminalFee *
-            this.searchQuery.TotalPax,
-          returnTerminalFee:
-            this.searchQuery.JourneyType === 2 &&
-            this.returnSchedule.Price.NewPrice > 0
-              ? this.returnSchedule.Price.NewReturnTerminalFee *
-                this.searchQuery.TotalPax
-              : 0,
-          travelTax:
-            this.returnSchedule.Price.JourneyType === "2"
-              ? this.returnSchedule.Price.THKTaxFee * this.searchQuery.TotalPax
-              : 0,
-          bookingFee: this.returnSchedule.Price.BookingFee
-            ? this.returnSchedule.Price.BookingFee * this.searchQuery.TotalPax
-            : 0,
-          travelInsurance:
-            this.travelInsurance > 0 ? this.travelInsurance * 5 : 0,
-          expressClearance:
-            this.clearance === true
-              ? this.clearanceFee * this.searchQuery.TotalPax
-              : 0
-        };
-      } else {
-        return;
-      }
-
-      for (var key in fare) {
-        if (fare.hasOwnProperty(key)) {
-          sum += parseFloat(fare[key]);
-        }
-      }
-
-      return sum;
+      return show;
     }
   },
   methods: {
     timezone(val) {
       if (!val) return;
-      const journey = this.travelDestinations.find(
-        item => item.JourneyName === val
-      );
+      const journey = this.journey.find(item => item.JourneyName === val);
       return journey.DepartCountry === "SINGAPORE" ? "SG" : "ID";
+    },
+    updateTotalAmount(amount) {
+      this.$store.commit("SET_TOTAL_AMOUNT", amount);
+    }
+  },
+  watch: {
+    totalAmount: {
+      deep: true,
+      handler: "updateTotalAmount"
     }
   }
 };

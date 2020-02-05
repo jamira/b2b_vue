@@ -25,35 +25,18 @@ export const store = new Vuex.Store({
     bookingDetails: {},
     post: [],
     token: "",
-    reservations: []
+    reservations: [],
+    bookings: {},
+    passengers: [],
+    reservationById: {},
+    currentBalance: {},
+    currentUser: {},
+    totalAmount: 0
   },
   getters: {
-    travelDestinations: state => {
-      return state.ferryDestinations;
-    },
-    schedules: state => {
-      return state.schedule;
-    },
-    searchQuery: state => {
-      return state.searchQuery;
-    },
-    loading: state => {
-      return state.isLoading;
-    },
-    clearance(state) {
-      return state.expressClearance;
-    },
-    departSchedule: state => {
-      return state.selectedDeparture;
-    },
-    returnSchedule: state => {
-      return state.selectedReturn;
-    },
     insurance: state => {
-      return state.travelInsurance;
-    },
-    bookingDetails: state => {
-      return state.bookingDetails;
+      const chkTrue = state.travelInsurance.filter(item => item.TravelInsurance === true);
+      return chkTrue.length;
     }
   },
   mutations: {
@@ -77,15 +60,23 @@ export const store = new Vuex.Store({
           key: payload.key,
           TravelInsurance: payload.TravelInsurance,
           PassportName: payload.PassportName,
-          PassportNo: payload.PassportNo
+          PassportNo: payload.PassportNo,
         });
       }
+    },
+    SET_PASSENGERS(state, payload) {
+      state.passengers = payload;
     },
     SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
     SET_ERROR_MSG: (state, payload) => state.message.push(payload),
     SET_POST: (state, payload) => (state.post = payload),
     SET_TOKEN: (state, payload) => (state.token = payload),
     SET_RESERVATIONS: (state, payload) => (state.reservations = payload),
+    SET_BOOKING: (state, payload) => (state.bookings = payload),
+    SET_RESERVATION_ID: (state, payload) => (state.reservationById = payload),
+    SET_CURRENT_BALANCE: (state, payload) => (state.currentBalance = payload),
+    SET_CURRENT_USER: (state, payload) => (state.currentUser = payload),
+    SET_TOTAL_AMOUNT: (state, payload) => (state.totalAmount = payload)
   },
   actions: {
     async GET_JOURNEY({ commit }) {
@@ -188,7 +179,7 @@ export const store = new Vuex.Store({
                   Vue.set(item, "NewPriceChild", "12");
                   Vue.set(item, "NewDepartTerminalFee", "0.00");
                   Vue.set(item, "NewReturnTerminalFee", "0.00");
-                  Vue.set(item, "THKTaxFee", "21.00");
+                  Vue.set(item, "THKTaxFee", "15.00");
                 }
 
               } else {
@@ -257,35 +248,68 @@ export const store = new Vuex.Store({
     async LOG_ME_IN({ commit }) {
       try {
         let res = await http.post("/thk/auth/login", {
-          username: "jamerey",
+          email: "merchant1@test.com",
           password: "thkpassword"
         });
         localStorage.setItem('token', res.data.payload.token);
         commit("SET_TOKEN", res.data.payload.token);
+        commit("SET_CURRENT_USER", res.data.payload.user);
       } catch (error) {
         console.log(error);
       }
     },
-    async INSERT_RESERVATION({ commit }, data) {
-      try {
-        let res = await http.post("/thk/reservations", data);
-        console.log(commit + " - " + res);
-      } catch (error) {
-        console.log(error.message);
-      }
+    INSERT_RESERVATION({ commit }, data) {
+      http.post("/thk/reservations", data).then(res => {
+        console.log(res.response.data.message);
+        commit("SET_CURRENT_BALANCE", res.data.payload);
+      }).catch(error => {
+        console.log(error.response.data.message);
+      });
+      // try {
+      //   await http.post("/thk/reservations", data);
+      //   console.log(commit + " - ");
+      // } catch (error) {
+      //   console.log(error);
+      // }
     },
-    async GET_RESERVATIONS({ commit }) {
-      try {
-        let res = await http.get("/thk/reservations");
-        let tmpArray = [];
+    GET_RESERVATIONS({ commit }) {
+      let tmpArray = [];
+      http.get("/thk/reservations").then(res => {
         res.data.payload.reservations.forEach(item => {
           tmpArray.push(item);
         });
+      }).catch(error => {
+        console.log(error.response.data.message);
+      });
 
-        commit("SET_RESERVATIONS", tmpArray);
-      } catch (error) {
-        console.log(error.message);
-      }
+      commit("SET_RESERVATIONS", tmpArray);
+
+      // try {
+      //   let res = await http.get("/thk/reservations");
+      //   let tmpArray = [];
+      //   res.data.payload.reservations.forEach(item => {
+      //     tmpArray.push(item);
+      //   });
+
+      //   commit("SET_RESERVATIONS", tmpArray);
+      // } catch (error) {
+      //   console.log(error.message);
+      // }
+    },
+    GET_RESERVATION_BY_ID({ commit }, ID) {
+      http.get("/thk/reservations/" + ID).then(res => {
+        commit("SET_RESERVATION_ID", res.data.payload.reservation);
+      }).catch(error => {
+        console.log(error.response.data);
+      });
+      // try {
+      //   console.log(ID)
+      //   let res = await http.get("/thk/reservations/" + ID);
+      //   commit("SET_RESERVATION_ID", res.data.payload.reservation)
+      //   console.log(commit + " - " + res);
+      // } catch (error) {
+      //   console.log(error);
+      // }
     }
   },
   modules: {

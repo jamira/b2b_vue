@@ -92,14 +92,14 @@
         <b-col xl="1" md="12">
           <b-form-group id="adult" label="Adult" label-for="adult">
             <b-form-select v-model="totalPax.adult">
-              <b-form-select-option v-for="(n, i) in 15" :key="n" :value="i">{{ i }}</b-form-select-option>
+              <b-form-select-option v-for="(n, i) in 11" :key="n" :value="i">{{ i }}</b-form-select-option>
             </b-form-select>
           </b-form-group>
         </b-col>
         <b-col xl="1" md="12">
           <b-form-group id="child" label="Child" label-for="child">
             <b-form-select v-model="totalPax.child">
-              <b-form-select-option v-for="(n, i) in 15" :key="n" :value="i">{{ i }}</b-form-select-option>
+              <b-form-select-option v-for="(n, i) in 11" :key="n" :value="i">{{ i }}</b-form-select-option>
             </b-form-select>
           </b-form-group>
         </b-col>
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import DatePicker from "vue2-datepicker";
 import { required } from "vuelidate/lib/validators";
 const today = new Date();
@@ -171,27 +171,30 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["travelDestinations", "searchQuery"]), // get the from API/Store
+    ...mapState({
+      journey: state => state.ferryDestinations,
+      searchQuery: state => state.searchQuery
+    }),
     formattedDepaturePort() {
       // refine data from API/Store
       var groups = {};
-      for (let index = 0; index < this.travelDestinations.length; index++) {
-        const groupCountry = this.travelDestinations[index].DepartCountry;
+      for (let index = 0; index < this.journey.length; index++) {
+        const groupCountry = this.journey[index].DepartCountry;
         if (!groups[groupCountry]) {
           groups[groupCountry] = [];
         }
 
         groups[groupCountry].push({
-          text: this.travelDestinations[index].JourneyName,
-          ArrivalPort: this.travelDestinations[index].ArrivalPort,
-          ArrivalPortName: this.travelDestinations[index].ArrivalPortName,
-          DepartCountry: this.travelDestinations[index].DepartCountry,
-          DepartPort: this.travelDestinations[index].DepartPort,
-          DepartPortName: this.travelDestinations[index].DepartPortName,
-          Duration: this.travelDestinations[index].Duration,
-          JourneyCode: this.travelDestinations[index].JourneyCode,
-          JourneyName: this.travelDestinations[index].JourneyName,
-          PairKey: this.travelDestinations[index].PairKey
+          text: this.journey[index].JourneyName,
+          ArrivalPort: this.journey[index].ArrivalPort,
+          ArrivalPortName: this.journey[index].ArrivalPortName,
+          DepartCountry: this.journey[index].DepartCountry,
+          DepartPort: this.journey[index].DepartPort,
+          DepartPortName: this.journey[index].DepartPortName,
+          Duration: this.journey[index].Duration,
+          JourneyCode: this.journey[index].JourneyCode,
+          JourneyName: this.journey[index].JourneyName,
+          PairKey: this.journey[index].PairKey
         });
       }
 
@@ -242,7 +245,7 @@ export default {
     },
     arrivalPort(departureCountry) {
       // get return country base on the selected departure country
-      const found = this.travelDestinations.filter(
+      const found = this.journey.filter(
         item => item.DepartCountry != departureCountry
       );
       found ? (this.returnPort = found) : [];

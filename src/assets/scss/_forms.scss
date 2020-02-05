@@ -1,3 +1,10 @@
 .#{$namespace}-datepicker {
   width: 100%;
 }
+
+.list-group-no-border {
+  .list-group-item {
+    border: 0 none;
+    padding: 0;
+  }
+}

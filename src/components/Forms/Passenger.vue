@@ -1,7 +1,7 @@
 <template>
-  <b-row>
-    <b-col xl="8" md="12">
-      <b-form @submit.prevent="onSubmit">
+  <b-form @submit.prevent="onSubmit">
+    <b-row>
+      <b-col xl="8" md="12">
         <b-alert variant="danger" fade :show="showAlert">
           <ul class="list-unstyled mb-0">
             <li v-for="(error, key) in message" :key="key">{{ error }}</li>
@@ -138,28 +138,28 @@
             </b-form-group>
           </b-form-row>
         </b-card>
-        <b-button type="submit" variant="primary">Submit</b-button>
-      </b-form>
-    </b-col>
-    <b-col xl="4" md="12">
-      <b-card class="shadow mb-4" header="Optional Add-on" header-tag="div">
-        <b-form-group>
-          <b-form-checkbox @change="onChckClerance($event)" switch size="sm">Express Clearance</b-form-checkbox>
-        </b-form-group>
-      </b-card>
+      </b-col>
+      <b-col xl="4" md="12">
+        <b-card class="shadow mb-4" header="Optional Add-on" header-tag="div">
+          <b-form-group>
+            <b-form-checkbox @change="onChckClerance($event)" switch size="sm">Express Clearance</b-form-checkbox>
+          </b-form-group>
+        </b-card>
 
-      <b-card class="shadow mb-4" header="Trip Summary" header-tag="div">
-        <TripSummary />
-      </b-card>
-    </b-col>
-  </b-row>
+        <b-card class="shadow mb-4" header="Trip Summary" header-tag="div">
+          <TripSummary />
+          <b-button type="submit" variant="primary" block>Create Booking</b-button>
+        </b-card>
+      </b-col>
+    </b-row>
+  </b-form>
 </template>
 
 <script>
 import { required } from "vuelidate/lib/validators";
 import DatePicker from "vue2-datepicker";
 import TripSummary from "../TripSummary";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import countries from "../../assets/countries.json";
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -211,15 +211,16 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      "searchQuery",
-      "loading",
-      "departSchedule",
-      "returnSchedule",
-      "clearance",
-      "insurance",
-      "bookingDetails"
-    ]),
+    ...mapState({
+      searchQuery: state => state.searchQuery,
+      departSchedule: state => state.selectedDeparture,
+      returnSchedule: state => state.selectedReturn,
+      clearance: state => state.expressClearance,
+      bookingDetails: state => state.bookingDetails,
+      currentUser: state => state.currentUser,
+      totalAmount: state => state.totalAmount
+    }),
+    ...mapGetters(["insurance"]),
     countries() {
       return countries.map(country => {
         return {
@@ -241,8 +242,15 @@ export default {
           status = true;
         }
       }
-
       return status;
+    },
+    checkBalance() {
+      let access = false;
+      if (this.currentUser.account_balance > this.totalAmount) {
+        access = true;
+      }
+
+      return access;
     }
   },
   methods: {
@@ -257,14 +265,17 @@ export default {
           const field = bookings.Passenger[index];
           if (field.PassportIssueDate < field.BirthDate) {
             this.message.push(
-              "Birthdate shouldn't be less than on passport date issue."
+              "Birthdate shouldn't be less than on passport issue date."
             );
 
             return;
           }
         }
 
-        this.$store.dispatch("CREATE_BOOKING", bookings);
+        //check if current user has sufficient balance
+        if (this.checkBalance == 1) {
+          this.$store.dispatch("CREATE_BOOKING", bookings);
+        }
       }
     },
     onChange(event, booking, key) {
@@ -306,11 +317,18 @@ export default {
             "YYYY-MM-DD"
           ),
           PassportIssueDate: this.$moment(data.dateIssue).format("YYYY-MM-DD"),
-          PriceCode: this.departSchedule.Price.PriceCode
+          PriceCode: this.departSchedule.Price.PriceCode,
+          TravelInsurance: data.travelInsurance,
+          ExpressClearance: this.clearance
         };
 
         passengers.push(formattedReturnValues);
       }
+
+      //mutate passengers
+      this.$store.commit("SET_PASSENGERS", passengers);
+
+      // update total amount if add on was set
 
       return {
         JourneyType: this.searchQuery.JourneyType,
