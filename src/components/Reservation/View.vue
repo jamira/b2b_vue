@@ -97,19 +97,27 @@
         </b-card>
       </b-col>
     </b-row>
+    <div ref="content" v-show="false">
+      <BookingItinerary :ID="this.$route.params.id" />
+    </div>
   </div>
+
 </template>
 
 <script>
+import BookingItinerary from "../Ferry/BookingItinerary";
 import { mapState } from "vuex";
-import jsPDF from "jspdf";
+import html2pdf from "html2pdf.js";
 export default {
-  name: "viewsss",
+  name: "View-Booking",
   data() {
     return {
       perPage: 10,
       currentPage: 1
     };
+  },
+  components: {
+    BookingItinerary
   },
   computed: {
     ...mapState({
@@ -130,20 +138,6 @@ export default {
         };
       });
     },
-    isClearance() {
-      const isClearance = this.bookingDetail.customers.filter(
-        item => item.express_clearance
-      );
-
-      return isClearance.length;
-    },
-    isInsurance() {
-      const isInsurance = this.bookingDetail.customers.filter(
-        item => item.travel_insurance
-      );
-
-      return isInsurance.length;
-    },
     rows() {
       return this.formattedCustomers.length;
     }
@@ -153,10 +147,19 @@ export default {
       this.$store.dispatch("GET_RESERVATION_BY_ID", this.$route.params.id);
     },
     downloadBooking() {
-      let fileName = "booking_itinerary";
-      var doc = new jsPDF();
-      doc.text("Reservation Details", 10, 10);
-      doc.save(fileName + ".pdf");
+      const contentHtml = this.$refs.content.innerHTML;
+      var opt = {
+        filename: "travel_itinerary.pdf",
+        jsPDF: {
+          setFontSize: 13,
+          unit: "mm",
+          format: "a4"
+        }
+      };
+      html2pdf()
+        .set(opt)
+        .from(contentHtml)
+        .save();
     }
   },
   async created() {
@@ -164,6 +167,3 @@ export default {
   }
 };
 </script>
-
-<style>
-</style>
