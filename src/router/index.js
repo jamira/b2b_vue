@@ -14,34 +14,27 @@ const routes = [
     component: () => import(/* webpackChunkName: "attraction" */ '../views/Attraction.vue')
   },
   {
+    path: '/test',
+    name: 'test',
+    component: () => import(/* webpackChunkName: "test" */ '../views/Test.vue')
+  },
+  {
     path: '/ferry',
     name: 'ferry',
     component: () => import(/* webpackChunkName: "ferry" */ '../views/Ferry.vue'),
+    children: [
+      { path: '/ferry/search', name: 'search', component: () => import(/* webpackChunkName: "search" */ '../components/Ferry/Search.vue') },
+      { path: '/ferry/booking', name: 'booking', component: () => import(/* webpackChunkName: "booking" */ '../components/Ferry/Bookings.vue') }
+    ]
   },
   {
     path: '/reservations',
     name: 'reservations',
     component: () => import(/* webpackChunkName: "reservations" */ '../views/Reservations.vue'),
     children: [
-      { path: '/reservations/list', component: () => import(/* webpackChunkName: "list" */ '../components/Reservation/List.vue') },
-      { path: '/reservations/view/:id', name: 'view', component: () => import(/* webpackChunkName: "view" */ '../components/Reservation/View.vue') },
-      { path: '/reservations/edit/:id', component: () => import(/* webpackChunkName: "edit" */ '../components/Reservation/Edit.vue') }
+      { path: '/reservations/list', name: 'list', component: () => import(/* webpackChunkName: "list" */ '../components/Reservation/List.vue') },
+      { path: '/reservations/view/:id', name: 'view', component: () => import(/* webpackChunkName: "view" */ '../components/Reservation/View.vue') }
     ]
-  },
-  {
-    path: '/booking',
-    name: 'booking',
-    component: () => import(/* webpackChunkName: "booking" */ '../views/Booking.vue'),
-  },
-  {
-    path: '/hotel',
-    name: 'hotel',
-    component: () => import(/* webpackChunkName: "hotel" */ '../views/Hotel.vue')
-  },
-  {
-    path: '/other',
-    name: 'other',
-    component: () => import(/* webpackChunkName: "other" */ '../views/Other.vue')
   }
 ]
 

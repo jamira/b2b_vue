@@ -1,18 +1,23 @@
 <template>
   <div id="reservation-detail">
-    <h1 class="h2 text-gray-800 mb-4">Reservation Detail</h1>
+    <h1 class="h2 text-gray-800 mb-4">Booking Detail</h1>
     <b-row>
-      <b-col xl="4" md="12">
+      <b-col xl="3" md="12">
         <b-card class="shadow" header="Trip Summary" header-tag="div">
           <b-list-group id="reservation-details" class="list-group-no-border">
             <b-list-group-item class="d-flex justify-content-between py-1">
               <span class="text-muted d-block">Booking Code:</span>
-              <h5>{{ bookingDetail.booking_reference }}</h5>
+              <span>{{ bookingDetail.booking_reference }}</span>
             </b-list-group-item>
 
             <b-list-group-item class="d-flex justify-content-between py-1">
               <span class="text-muted d-block">Booking Date:</span>
               <span>{{ bookingDetail.created_at }}</span>
+            </b-list-group-item>
+
+            <b-list-group-item class="d-flex justify-content-between py-1">
+              <span class="text-muted d-block">Journey Type:</span>
+              <span>{{ bookingDetail.journey_type === 2 ? 'Two Way' : 'One Way' }}</span>
             </b-list-group-item>
 
             <b-list-group-item class="d-flex justify-content-between py-1">
@@ -48,8 +53,18 @@
             </div>
 
             <b-list-group-item class="d-flex justify-content-between py-1">
+              <span class="text-muted d-block">Total Pax:</span>
+              <span>{{ bookingDetail.adult + bookingDetail.child }}</span>
+            </b-list-group-item>
+
+            <b-list-group-item class="d-flex justify-content-between py-1">
               <span class="text-muted d-block">Created By:</span>
               <span>{{ currentUser.name }}</span>
+            </b-list-group-item>
+
+            <b-list-group-item class="d-flex justify-content-between py-1 mt-2">
+              <span class="text-muted d-block">Total Payment:</span>
+              <h4>{{ bookingDetail.payment | currency }}</h4>
             </b-list-group-item>
           </b-list-group>
 
@@ -57,78 +72,28 @@
             <b-button
               variant="secondary"
               size="sm"
-              class="mr-2"
               @click="downloadBooking"
+              block
             >Download Booking Itinerary</b-button>
-            <b-button variant="secondary" size="sm">Email Booking Itinerary</b-button>
-            <!-- <b-button variant="danger" size="sm" class="float-right">Edit Booking</b-button> -->
+            <b-button variant="secondary" size="sm" block>Email Booking Itinerary</b-button>
           </template>
         </b-card>
       </b-col>
 
-      <b-col xl="4" md="12">
-        <b-card class="shadow" header="Payment Summary" header-tag="div">
-          <b-list-group id="reservation-details" class="list-group-no-border">
-            <b-list-group-item class="d-flex justify-content-between py-1">
-              <span class="text-muted d-block">Total Pax:</span>
-              <span>{{ bookingDetail.adult + bookingDetail.child }}</span>
-            </b-list-group-item>
-
-            <b-list-group-item class="d-flex justify-content-between py-1" v-if="isInsurance > 0">
-              <span class="text-muted d-block">Travel Insurance:</span>
-              <span>{{ isInsurance * 5 | currency }}</span>
-            </b-list-group-item>
-
-            <b-list-group-item class="d-flex justify-content-between py-1" v-if="isClearance > 0">
-              <span class="text-muted d-block">Express Clearance:</span>
-              <span>{{ isClearance * 10 | currency }}</span>
-            </b-list-group-item>
-
-            <b-list-group-item class="d-flex justify-content-between py-1 mt-2">
-              <span class="text-muted d-block">Total Price:</span>
-              <h5>{{ bookingDetail.payment | currency }}</h5>
-            </b-list-group-item>
-          </b-list-group>
-        </b-card>
-      </b-col>
-
-      <b-col xl="4" md="12">
-        <b-card class="shadow" header="Passenger(s)" header-tag="div">
-          <b-list-group
-            v-for="(passenger, key) in formattedCustomers"
-            :key="key"
-            :id="'passenger-detail-' + key"
-            class="list-group-no-border mb-4"
-          >
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Passport Name:</span>
-              <span>{{ passenger.PassportName }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Passport No:</span>
-              <span>{{ passenger.PassportNo }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Nationality:</span>
-              <span>{{ passenger.Nationality }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Date Of Birth:</span>
-              <span>{{ passenger.DateOfBirth }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Passport Date Issue:</span>
-              <span>{{ passenger.PassportDateIssue }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Passport Expiry Date:</span>
-              <span>{{ passenger.PassportExpiryDate }}</span>
-            </b-list-group-item>
-            <b-list-group-item class="d-flex justify-content-between p-1">
-              <span class="text-muted d-block">Travel Insurance:</span>
-              <span>{{ passenger.TravelInsurance }}</span>
-            </b-list-group-item>
-          </b-list-group>
+      <b-col xl="9" md="12">
+        <b-card class="shadow" header="Bookings" header-tag="div">
+          <b-table :items="formattedCustomers" id="passenger-table" responsive caption-top>
+            <template
+              v-slot:table-caption
+            >Total of {{ formattedCustomers.length }} {{formattedCustomers.length > 1 ? 'Passengers' : 'Passenger'}} list</template>
+          </b-table>
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="rows"
+            :per-page="perPage"
+            aria-controls="passenger-table"
+            size="sm"
+          ></b-pagination>
         </b-card>
       </b-col>
     </b-row>
@@ -142,8 +107,8 @@ export default {
   name: "viewsss",
   data() {
     return {
-      post: null,
-      error: null
+      perPage: 10,
+      currentPage: 1
     };
   },
   computed: {
@@ -154,14 +119,14 @@ export default {
     formattedCustomers() {
       return this.bookingDetail.customers.map(item => {
         return {
-          PassportName: item.name,
+          Name: item.name,
           PassportNo: item.passport_no,
-          Nationality: item.nationality,
-          DateOfBirth: item.birth_date,
           PassportDateIssue: item.issue_date,
           PassportExpiryDate: item.passport_expiry,
-          TravelInsurance: item.travel_insurance ? "Yes" : "No",
-          ExpressClearance: item.express_clearance ? "Yes" : "No"
+          Nationality: item.nationality,
+          DOB: item.birth_date,
+          Insurance: item.travel_insurance ? "Yes" : "No",
+          Clearance: item.express_clearance ? "Yes" : "No"
         };
       });
     },
@@ -178,6 +143,9 @@ export default {
       );
 
       return isInsurance.length;
+    },
+    rows() {
+      return this.formattedCustomers.length;
     }
   },
   methods: {

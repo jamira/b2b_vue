@@ -35,6 +35,18 @@ export default {
     ...mapState({
       isLoading: state => state.isLoading
     })
+  },
+  methods: {
+    logIn() {
+      this.$store.dispatch("LOG_ME_IN");
+    },
+    fetchJourney() {
+      this.$store.dispatch("GET_JOURNEY");
+    }
+  },
+  async created() {
+    await this.logIn();
+    await this.fetchJourney();
   }
 };
 </script>

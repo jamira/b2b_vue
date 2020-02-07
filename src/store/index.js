@@ -50,7 +50,7 @@ export const store = new Vuex.Store({
     SET_LOADING: (state, payload) => (state.isLoading = payload),
     SET_SELECTED_DEPART_SCHEDULE: (state, payload) => (state.selectedDeparture = payload),
     SET_SELECTED_RETURN_SCHEDULE: (state, payload) => (state.selectedReturn = payload),
-    SET_EXPRESS_CLEARANCE: (state) => (state.expressClearance = !state.expressClearance),
+    SET_EXPRESS_CLEARANCE: (state, payload) => (state.expressClearance = payload),
     SET_HAS_INSURANCE(state, payload) {
       let findKey = state.travelInsurance.find(item => item.key === payload.key);
       if (findKey) {
@@ -83,10 +83,7 @@ export const store = new Vuex.Store({
       commit("SET_LOADING", true);
       let tmpArray = [];
       try {
-        let res = await http.post('/api/ferry/MFFWebservices/MFFJourney', {
-          Username: "thktourthk",
-          SecurityKey: "thktourapi888"
-        });
+        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFJourney');
 
         // loop through all raw data and set new key on each item to filter the journey 
         for (let i = 0; i < res.data.length; i++) {
@@ -136,9 +133,7 @@ export const store = new Vuex.Store({
     async GET_SCHEDULE_PRICE({ commit }, data) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post('/api/ferry/MFFWebservices/MFFSchedule', {
-          Username: "thktourthk",
-          SecurityKey: "thktourapi888",
+        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFSchedule', {
           TicketCategory: "Normal",
           TotalPax: data.TotalPax,
           JourneyType: data.JourneyType,
@@ -201,7 +196,7 @@ export const store = new Vuex.Store({
     async CREATE_BOOKING({ commit }, data) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post('/api/ferry/MFFWebservices/MFFPassengerBooking', {
+        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFPassengerBooking', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888",
           BookingName: "test",
@@ -232,7 +227,7 @@ export const store = new Vuex.Store({
     async CANCEL_BOOKING({ commit }) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post("/api/ferry/MFFWebservices/MFFCancelBooking");
+        let res = await http.post("http://47.52.109.16/api/ferry-api/MFFCancelBooking");
         console.log(res.data)
       } catch (error) {
         console.log(error);
@@ -258,7 +253,7 @@ export const store = new Vuex.Store({
     },
     async LOG_ME_IN({ commit }) {
       try {
-        let res = await http.post("/thk/auth/login", {
+        let res = await http.post("http://47.52.109.16/api/auth/login", {
           email: "merchant1@test.com",
           password: "thkpassword"
         });
@@ -270,63 +265,33 @@ export const store = new Vuex.Store({
       }
     },
     INSERT_RESERVATION({ commit }, data) {
-      http.post("/thk/reservations", data).then(res => {
+      http.post("http://47.52.109.16/api/reservations", data).then(res => {
         console.log(res.response.data.message);
         commit("SET_CURRENT_BALANCE", res.data.payload);
       }).catch(error => {
         console.log(error.response.data.message);
       });
-      // try {
-      //   await http.post("/thk/reservations", data);
-      //   console.log(commit + " - ");
-      // } catch (error) {
-      //   console.log(error);
-      // }
     },
     GET_RESERVATIONS({ commit }) {
-      commit("SET_LOADING", true);
-      let tmpArray = [];
-      http.get("/thk/reservations").then(res => {
-        res.data.payload.reservations.forEach(item => {
-          tmpArray.push(item);
-        });
+      http.get("http://47.52.109.16/api/reservations").then(res => {
+        commit("SET_LOADING", true);
+        commit("SET_RESERVATIONS", res.data.payload.reservations);
+        commit("SET_LOADING", false);
       }).catch(error => {
         console.log(error.response.data.message);
       });
-
-      commit("SET_RESERVATIONS", tmpArray);
-      commit("SET_LOADING", false);
-
-      // try {
-      //   let res = await http.get("/thk/reservations");
-      //   let tmpArray = [];
-      //   res.data.payload.reservations.forEach(item => {
-      //     tmpArray.push(item);
-      //   });
-
-      //   commit("SET_RESERVATIONS", tmpArray);
-      // } catch (error) {
-      //   console.log(error.message);
-      // }
     },
     GET_RESERVATION_BY_ID({ commit }, ID) {
       commit("SET_LOADING", true);
-      http.get("/thk/reservations/" + ID).then(res => {
+      http.get("http://47.52.109.16/api/reservations/" + ID).then(res => {
         commit("SET_RESERVATION_ID", res.data.payload.reservation);
         commit("SET_LOADING", false);
       }).catch(error => {
         console.log(error.response.data);
       });
-      // try {
-      //   console.log(ID)
-      //   let res = await http.get("/thk/reservations/" + ID);
-      //   commit("SET_RESERVATION_ID", res.data.payload.reservation)
-      //   console.log(commit + " - " + res);
-      // } catch (error) {
-      //   console.log(error);
-      // }
     }
   },
   modules: {
   }
 })
+

@@ -24,7 +24,7 @@
       v-if="departSchedule.Price.DepartTerminalFee"
       class="d-flex justify-content-between py-1 depart-terminal-fee"
     >
-      <span class="text-muted mb-1 d-block">Departure Terminal Fee(s)</span>
+      <span class="text-muted mb-1 d-block">Departure Terminal Fee</span>
       <span>{{ departSchedule.Price.DepartTerminalFee ? departSchedule.Price.NewDepartTerminalFee * searchQuery.TotalPax : 0 | currency }}</span>
     </b-list-group-item>
 
@@ -32,7 +32,7 @@
       v-if="searchQuery.JourneyType === 2 && returnSchedule.Price.NewReturnTerminalFee"
       class="d-flex justify-content-between py-1 return-terminal-fee"
     >
-      <span class="text-muted mb-1 d-block">Return Terminal Fee(s)</span>
+      <span class="text-muted mb-1 d-block">Return Terminal Fee</span>
       <span>{{ returnSchedule.Price.NewReturnTerminalFee * searchQuery.TotalPax | currency }}</span>
     </b-list-group-item>
 
@@ -65,7 +65,7 @@
       class="d-flex justify-content-between py-1 return-terminal-fee"
     >
       <span class="text-muted mb-1 d-block">Clearance Express</span>
-      <span>{{ 10 * searchQuery.TotalPax | currency }}</span>
+      <span>{{ clearanceFees * searchQuery.TotalPax | currency }}</span>
     </b-list-group-item>
 
     <b-list-group-item class="mt-3 py-1 border-bottom depart-trip text-center">
@@ -106,13 +106,16 @@ export default {
       currentUser: state => state.currentUser,
       totalAmount: state => state.totalAmount
     }),
-    ...mapGetters(["insurance"]),
+    ...mapGetters(["insurance", "tanjungBalai"]),
     totalAmount() {
       var sum = 0;
       const totalDues = {
         currentTotal: this.summaryTrip.totalAmount,
         isInsurance: this.insurance > 0 ? this.insurance * 5 : 0,
-        isExpress: this.clearance == true ? this.searchQuery.TotalPax * 10 : 0
+        isExpress:
+          this.clearance == true
+            ? this.searchQuery.TotalPax * this.clearanceFees
+            : 0
       };
 
       for (var key in totalDues) {
@@ -123,6 +126,13 @@ export default {
 
       return sum;
     },
+    clearanceFees() {
+      return this.searchQuery.JourneyType === 1
+        ? 5
+        : this.searchQuery.JourneyType === 2
+        ? 10
+        : 0;
+    },
     noTerminalFees() {
       var show = false;
       if (
@@ -130,7 +140,7 @@ export default {
         this.searchQuery.ReturnJourneyName === "Tanjung Balai to HarbourFront"
       ) {
         show = true;
-        return `No Terminal Fee Charge for ${this.searchQuery.JourneyName} & ${this.searchQuery.ReturnJourneyName} Trip`;
+        return `Ticket is not including terminal fees`;
       }
       return show;
     }

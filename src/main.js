@@ -8,6 +8,7 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import VueMoment from 'vue-moment'
 import Vuelidate from 'vuelidate'
 import VueCurrencyFilter from 'vue-currency-filter'
+import vbMsgBox from 'bootstrap-vue-msgbox'
 
 import './assets/scss/custom.scss';
 import 'vue-loading-overlay/dist/vue-loading.css';
@@ -17,12 +18,8 @@ Vue.use(IconsPlugin)
 Vue.use(VueAxios, axios)
 Vue.use(VueMoment)
 Vue.use(Vuelidate)
-// Vue.use(Loading, {
-//   color: '#7bc338',
-//   backgroundColor: '#000',
-//   opacity: 0.8,
-//   loader: 'dots'
-// });
+Vue.use(vbMsgBox)
+
 
 Vue.use(VueCurrencyFilter, {
   symbol: "$",

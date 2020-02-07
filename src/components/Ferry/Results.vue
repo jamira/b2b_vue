@@ -19,7 +19,7 @@
                 v-else
                 show
                 variant="warning"
-              >No schedule available for {{ searchQuery.JourneyName }}</b-alert>
+              >No available schedule for {{ searchQuery.JourneyName }}</b-alert>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -42,7 +42,7 @@
                 v-else
                 show
                 variant="warning"
-              >No schedule available for {{ searchQuery.JourneyName }}</b-alert>
+              >No available schedule for {{ searchQuery.JourneyName }}</b-alert>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -56,8 +56,8 @@
 
 <script>
 import { mapState } from "vuex";
-import DepartSchedule from "./Schedule/Departure";
-import ReturnSchedule from "./Schedule/Return";
+import DepartSchedule from "../Ferry/SearchResult/Departure";
+import ReturnSchedule from "../Ferry/SearchResult/Return";
 export default {
   name: "FerryResults",
   components: {
@@ -225,7 +225,7 @@ export default {
       };
 
       this.$store.commit("SET_BOOKING", bookingDetails);
-      this.$router.push({ path: "booking", query: { create: "ferry" } });
+      this.$router.push({ path: "/ferry/booking" });
     },
     isEmpty(obj) {
       for (const key in obj) {

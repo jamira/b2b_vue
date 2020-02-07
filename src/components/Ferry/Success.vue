@@ -45,7 +45,7 @@ export default {
             " " +
             item.TravelTime +
             ")",
-          arrival:
+          return:
             item.JourneyType === "2"
               ? item.ReturnJourneyCode +
                 " (" +
@@ -55,7 +55,7 @@ export default {
                 " " +
                 item.ReturnTravelTime +
                 ")"
-              : "Not Available",
+              : "None",
           seat_category: item.SeatCategory
         };
       });

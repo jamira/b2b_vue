@@ -2,12 +2,6 @@
   <b-form @submit.prevent="onSubmit">
     <b-row>
       <b-col xl="8" md="12">
-        <b-alert variant="danger" fade :show="showAlert">
-          <ul class="list-unstyled mb-0">
-            <li v-for="(error, key) in message" :key="key">{{ error }}</li>
-          </ul>
-        </b-alert>
-
         <b-card class="shadow mb-4" header="Booking Information" header-tag="div">
           <b-form-row>
             <b-col xl="4" md="12">
@@ -140,7 +134,12 @@
         </b-card>
       </b-col>
       <b-col xl="4" md="12">
-        <b-card class="shadow mb-4" header="Optional Add-on" header-tag="div">
+        <b-card
+          class="shadow mb-4"
+          header="Optional Add-on"
+          header-tag="div"
+          v-if="isExpressClearance"
+        >
           <b-form-group>
             <b-form-checkbox @change="onChckClerance($event)" switch size="sm">Express Clearance</b-form-checkbox>
           </b-form-group>
@@ -172,7 +171,6 @@ export default {
   data() {
     return {
       bookingName: "",
-      message: [],
       bookings: [
         {
           passportName: "",
@@ -218,7 +216,8 @@ export default {
       clearance: state => state.expressClearance,
       bookingDetails: state => state.bookingDetails,
       currentUser: state => state.currentUser,
-      totalAmount: state => state.totalAmount
+      totalAmount: state => state.totalAmount,
+      travelInsurance: state => state.travelInsurance
     }),
     ...mapGetters(["insurance"]),
     countries() {
@@ -228,9 +227,6 @@ export default {
           text: country.en_short_name
         };
       });
-    },
-    showAlert() {
-      return this.message.length > 0 ? true : false;
     },
     checkBooking() {
       var status = "";
@@ -251,11 +247,20 @@ export default {
       }
 
       return access;
+    },
+    isExpressClearance() {
+      var show = true;
+      if (
+        this.searchQuery.JourneyName === "HarbourFront to Tanjung Balai" &&
+        this.searchQuery.ReturnJourneyName === "Tanjung Balai to HarbourFront"
+      ) {
+        show = false;
+      }
+      return show;
     }
   },
   methods: {
     onSubmit() {
-      this.message = [];
       this.$v.$touch();
 
       if (!this.$v.bookings.$error) {
@@ -264,9 +269,10 @@ export default {
         for (let index = 0; index < bookings.Passenger.length; index++) {
           const field = bookings.Passenger[index];
           if (field.PassportIssueDate < field.BirthDate) {
-            this.message.push(
-              "Birthdate shouldn't be less than on passport issue date."
-            );
+            this.$alert({
+              title: "THK Message",
+              content: `Birthdate shouldn't be less than on passport issue date.`
+            });
 
             return;
           }
@@ -370,9 +376,15 @@ export default {
   watch: {
     checkBooking(status) {
       if (status === true) {
-        this.$router.push({ path: "booking", query: { create: "success" } });
+        this.$router.push({
+          path: "booking",
+          query: { status: "success" }
+        });
       } else {
-        this.message.push(status);
+        this.$alert({
+          title: "THK Message",
+          content: status
+        });
       }
     }
   }
