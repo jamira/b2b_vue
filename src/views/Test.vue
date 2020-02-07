@@ -10,8 +10,11 @@
       </div>
     </div>
 
-    <div class="booking-info" style="clear: both; color: #000; font-size: 12px; padding:0 15px;">
-      <ul class="list-unstyled">
+    <div
+      class="booking-info py-3"
+      style="clear: both; color: #000; font-size: 12px; padding:0 15px;"
+    >
+      <ul class="list-unstyled m-0">
         <li>
           <strong>Booking Name:</strong> THKL0220031
         </li>
@@ -24,12 +27,11 @@
       </ul>
     </div>
 
-    <div class="booking-details" style="padding-right: 10px;">
+    <div class="booking-details" style="padding:0 15px;">
       <b-table-simple striped small style="color: #000; font-size: 12px;">
         <b-thead>
           <b-tr>
-            <b-th>No</b-th>
-            <b-th>Passport No</b-th>
+            <b-th>Passport</b-th>
             <b-th>Name</b-th>
             <b-th>Nationality</b-th>
             <b-th>Journey</b-th>
@@ -39,7 +41,6 @@
         </b-thead>
         <b-tbody>
           <b-tr>
-            <b-td>1</b-td>
             <b-td>EC5122642</b-td>
             <b-td>Mark Zalik</b-td>
             <b-td>SINGAPOREAN</b-td>
@@ -59,7 +60,7 @@
         <b-tbody></b-tbody>
       </b-table-simple>
       <b-table-simple caption-top small style="color: #000; font-size: 12px;">
-        <caption style="color: #000;">Ferry Ticket Fare & Service Fees Details</caption>
+        <caption style="color: #000; font-weight: 600;">Ferry Ticket Fare & Service Fees Details</caption>
         <b-thead>
           <b-tr>
             <b-th>Ferry Ticket</b-th>
@@ -80,16 +81,16 @@
       </b-table-simple>
     </div>
 
-    <div class="guides my-3" style="color: #000; font-size: 12px;">
+    <div class="guides my-3" style="color: #000; font-size: 12px; padding:0 15px;">
       <strong>Fee Details</strong>
-      <ul class="px-4">
+      <ul class="px-4 mb-4">
         <li>You are required to collect your boardingpass 60 mins before your departure time or seats will be automatically released.</li>
         <li>This fare type is NOT transferable to another passenger</li>
         <li>This fare type is capacity controlled and limited and hence, may not be available on all ferries</li>
         <li>This fare type is always subject to our General Terms and Conditions</li>
       </ul>
       <strong>Travel Guide In Terminal</strong>
-      <ul class="px-4">
+      <ul class="px-4 mb-4">
         <li>Use our Self Check-In facilities, log onto our website on the facilities available</li>
         <li>Check-in deadlines may vary at different seaports and for particular ferries. It is your responsibility to ensure that you comply with these deadlines</li>
         <li>Do not carry any liquids, aerosols and gels more than 100ml in your cabin baggage</li>
