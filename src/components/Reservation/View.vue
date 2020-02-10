@@ -75,7 +75,6 @@
               @click="downloadBooking"
               block
             >Download Booking Itinerary</b-button>
-            <b-button variant="secondary" size="sm" block>Email Booking Itinerary</b-button>
           </template>
         </b-card>
       </b-col>

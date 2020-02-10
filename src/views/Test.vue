@@ -2,7 +2,7 @@
   <div ref="content" style="width: 700px; margin: 0 auto; padding: 0 15px;">
     <div class="header" style="padding:0 15px;">
       <div class="float-left">
-        <b-img :src="logo" alt="THK Tour"></b-img>
+        <b-img :src="logo" alt="THK Tour" width="450"></b-img>
       </div>
       <div class="float-right" style="color: #000;">
         <span style="text-transform: uppercase; font-size: 12px">Booking Code</span>
@@ -114,7 +114,7 @@
 <script>
 // import jsPDF from "jspdf";
 import html2pdf from "html2pdf.js";
-import logo from "../assets/logo.png";
+import logo from "../assets/thk-letter-head.png";
 export default {
   data() {
     return {

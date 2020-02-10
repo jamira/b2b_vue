@@ -2,15 +2,15 @@
   <div style="width: 800px; margin: 0 auto; padding: 0 10px;">
     <div class="header" style="padding:20px; 10px;">
       <div class="float-left">
-        <b-img :src="logo" alt="THK Tour"></b-img>
+        <b-img :src="logo" alt="THK Tour" width="450"></b-img>
       </div>
       <div class="float-right" style="color: #000;">
-        <span style="text-transform: uppercase; font-size: 12px">Booking Code</span>
+        <span style="text-transform: uppercase; font-size: 13px">Booking Code</span>
         <h4>{{ bookingDetail.booking_reference }}</h4>
       </div>
     </div>
 
-    <div class="booking-info py-3" style="clear: both; color: #000; font-size: 12px; padding:0 10px;">
+    <div class="booking-info py-3" style="clear: both; color: #000; font-size: 13px; padding:0 10px;">
       <ul class="list-unstyled m-0">
         <li>
           <strong>Status:</strong> {{ bookingDetail.status }}
@@ -70,7 +70,7 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/thk-letter-head.png";
 export default {
   name: "Book Itinerary",
   data() {
