@@ -1,5 +1,6 @@
 <template>
   <div ref="content" style="width: 700px; margin: 0 auto; padding: 0 15px;">
+    <font-awesome-icon icon="user-secret" />
     <div class="header" style="padding:0 15px;">
       <div class="float-left">
         <b-img :src="logo" alt="THK Tour" width="450"></b-img>

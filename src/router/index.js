@@ -35,6 +35,11 @@ const routes = [
       { path: '/reservations/list', name: 'list', component: () => import(/* webpackChunkName: "list" */ '../components/Reservation/List.vue') },
       { path: '/reservations/view/:id', name: 'view', component: () => import(/* webpackChunkName: "view" */ '../components/Reservation/View.vue') }
     ]
+  },
+  {
+    path: '/top-up',
+    name: 'topup',
+    component: () => import(/* webpackChunkName: "topup" */ '../views/TopUp.vue')
   }
 ]
 

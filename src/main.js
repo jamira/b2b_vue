@@ -10,6 +10,10 @@ import Vuelidate from 'vuelidate'
 import VueCurrencyFilter from 'vue-currency-filter'
 import vbMsgBox from 'bootstrap-vue-msgbox'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faShip, faTicketAlt, faCreditCard } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
 import './assets/scss/custom.scss';
 import 'vue-loading-overlay/dist/vue-loading.css';
 
@@ -20,6 +24,9 @@ Vue.use(VueMoment)
 Vue.use(Vuelidate)
 Vue.use(vbMsgBox)
 
+library.add(faShip, faTicketAlt, faCreditCard)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.use(VueCurrencyFilter, {
   symbol: "$",
