@@ -17,10 +17,10 @@
           style="clear: both; color: #000; font-size: 13px; padding:0 10px;"
         >
           <ul class="list-unstyled m-0">
-            <li>
+            <!-- <li>
               <strong>Booking Name:</strong>
               {{ formattedBookingDetails[0].booking_name }}
-            </li>
+            </li> -->
             <li>
               <strong>Status:</strong>
               {{ formattedBookingDetails[0].status }}
