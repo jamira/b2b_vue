@@ -223,11 +223,14 @@ export default {
         .output("datauristring")
         .then(pdfAsString => {
           let data = {
-            email: "jamerey@superskill.com",
-            fileDataURI: pdfAsString
+            iterinaryFile: pdfAsString
           };
-
           this.$store.dispatch("SEND_BOOKING_EMAIL", data);
+          this.$alert({
+            title: "THK Message",
+            content:
+              "Itirenary is succesfully sent to your email. Please check."
+          });
         });
     }
   },
