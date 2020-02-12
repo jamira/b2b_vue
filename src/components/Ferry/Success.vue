@@ -1,22 +1,100 @@
 <template>
   <div>
-    <h1 class="h2 text-gray-800 mb-4">Success</h1>
-    <b-card class="shadow mb-4" header="Booking Details" header-tag="div">
-      <b-table striped hover :items="formattedBookingDetails"></b-table>
-    </b-card>
-    <b-card class="shadow mb-4" header="Travel Details" header-tag="div">
-      <b-table striped hover :items="formattedTravelDetails"></b-table>
-    </b-card>
-    <b-card class="shadow mb-4" header="Passenger Details" header-tag="div">
-      <b-table striped hover :items="formattedPassengers"></b-table>
-    </b-card>
+    <div ref="content">
+      <div style="width: 800px; margin: 0 auto; padding: 0 10px;">
+        <div class="header" style="padding:20px; 10px;">
+          <div class="float-left">
+            <b-img :src="logo" alt="THK Tour" width="450"></b-img>
+          </div>
+          <div class="float-right" style="color: #000;">
+            <span style="text-transform: uppercase; font-size: 13px">Booking Code</span>
+            <h4>{{ formattedBookingDetails[0].booking_code }}</h4>
+          </div>
+        </div>
+
+        <div
+          class="booking-info py-3"
+          style="clear: both; color: #000; font-size: 13px; padding:0 10px;"
+        >
+          <ul class="list-unstyled m-0">
+            <li>
+              <strong>Booking Name:</strong>
+              {{ formattedBookingDetails[0].booking_name }}
+            </li>
+            <li>
+              <strong>Status:</strong>
+              {{ formattedBookingDetails[0].status }}
+            </li>
+            <li>
+              <strong>Booking Date:</strong>
+              {{ formattedBookingDetails[0].booking_date }}
+            </li>
+            <li>
+              <strong>Total Pax:</strong> Total Pax
+            </li>
+          </ul>
+        </div>
+        <div class="booking-details" style="padding:0 10px;">
+          <b-table
+            :items="formattedTravelDetails"
+            striped
+            style="color: #000; font-size: 13px;"
+            class="mb-4"
+            caption-top
+          >
+            <template v-slot:table-caption>
+              <strong style="color: #000;">Travel Details</strong>
+            </template>
+          </b-table>
+
+          <b-table
+            :items="formattedPassengers"
+            striped
+            style="color: #000; font-size: 13px;"
+            class="mb-4"
+            caption-top
+          >
+            <template v-slot:cell(DepartPort)="data">
+              <div v-html="data.value"></div>
+            </template>
+            <template v-slot:cell(ReturnPort)="data">
+              <div v-html="data.value" v-if="bookingDetail.journey_type === '2'"></div>
+              <div v-else>None</div>
+            </template>
+
+            <template v-slot:table-caption>
+              <strong style="color: #000;">Passenger(s)</strong>
+            </template>
+          </b-table>
+
+          <b-table
+            :items="servicesFee"
+            style="color: #000; font-size: 13px;"
+            class="mb-4"
+            caption-top
+          >
+            <template v-slot:table-caption>
+              <strong style="color: #000;">Ferry Ticket Fare & Service Fees Details</strong>
+            </template>
+          </b-table>
+        </div>
+      </div>
+    </div>
+    <b-button variant="secondary" size="sm" @click="emailBooking">Email Booking Itinerary</b-button>
   </div>
 </template>
 
 <script>
+import html2pdf from "html2pdf.js";
+import logo from "../../assets/thk-letter-head.png";
 import { mapState } from "vuex";
 export default {
   name: "Passenger",
+  data() {
+    return {
+      logo: logo
+    };
+  },
   computed: {
     ...mapState({
       searchQuery: state => state.searchQuery,
@@ -65,14 +143,21 @@ export default {
         return {
           passport_name: item.PassportName,
           passport_no: item.PassportNo,
-          issue_date: item.PassportIssueDate,
-          expiry_date: item.PassportExpiredDate,
           nationality: item.Nationality,
-          birth_date: item.BirthDate,
+          JourneyType: item.journey_type === "2" ? "Two-Way" : "One-Way",
           travel_insurance: item.TravelInsurance ? "Yes" : "No",
           express_clearance: item.ExpressClearance ? "Yes" : "No"
         };
       });
+    },
+    servicesFee() {
+      return [
+        {
+          ferryTicket: "Paid",
+          surcharges: "Paid",
+          TerminalFees: "Paid"
+        }
+      ];
     }
   },
   methods: {
@@ -120,6 +205,30 @@ export default {
       };
 
       this.$store.dispatch("INSERT_RESERVATION", { reservation: reservation });
+    },
+    emailBooking() {
+      const contentHtml = this.$refs.content.innerHTML;
+      var opt = {
+        filename: "travel_itinerary.pdf",
+        jsPDF: {
+          setFontSize: 13,
+          unit: "mm",
+          format: "a4"
+        }
+      };
+      html2pdf()
+        .set(opt)
+        .from(contentHtml)
+        .toPdf()
+        .output("datauristring")
+        .then(pdfAsString => {
+          let data = {
+            email: "jamerey@superskill.com",
+            fileDataURI: pdfAsString
+          };
+
+          this.$store.dispatch("SEND_BOOKING_EMAIL", data);
+        });
     }
   },
   created() {

@@ -75,6 +75,12 @@
               @click="downloadBooking"
               block
             >Download Booking Itinerary</b-button>
+            <b-button
+              variant="secondary"
+              size="sm"
+              @click="emailBooking"
+              block
+            >Email Booking Itinerary</b-button>
           </template>
         </b-card>
       </b-col>
@@ -100,7 +106,6 @@
       <BookingItinerary :ID="this.$route.params.id" />
     </div>
   </div>
-
 </template>
 
 <script>
@@ -159,6 +164,33 @@ export default {
         .set(opt)
         .from(contentHtml)
         .save();
+    },
+    emailBooking() {
+      const contentHtml = this.$refs.content.innerHTML;
+      var opt = {
+        filename: "travel_itinerary.pdf",
+        jsPDF: {
+          setFontSize: 13,
+          unit: "mm",
+          format: "a4"
+        }
+      };
+      html2pdf()
+        .set(opt)
+        .from(contentHtml)
+        .toPdf()
+        .output("datauristring")
+        .then(pdfAsString => {
+          let data = {
+            iterinaryFile: pdfAsString
+          };
+          this.$store.dispatch("SEND_BOOKING_EMAIL", data);
+          this.$alert({
+            title: "THK Message",
+            content:
+              "Itirenary is succesfully sent to your email. Please check."
+          });
+        });
     }
   },
   async created() {

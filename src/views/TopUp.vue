@@ -1,7 +1,7 @@
 <template>
   <div class="content">
-    <AddCredit @fetch-data="fetchData"/>
-    <ListCredit :items="items" />
+    <AddCredit @fetch-data="fetchData" />
+    <ListCredit :item="item" />
   </div>
 </template>
 
@@ -16,12 +16,12 @@ export default {
   },
   data() {
     return {
-      items: []
+      item: []
     };
   },
   methods: {
     fetchData(e) {
-      this.items.push(e)
+      this.item.push(e);
     }
   }
 };

@@ -5,20 +5,24 @@
         <b-form-row>
           <b-col xl="3" md="12" class="mb-2">
             <b-form-group label="Amount">
-              <b-form-input id="amount" 
-                v-model="$v.credit.amount.$model" 
+              <b-form-input
+                id="amount"
+                v-model="$v.credit.amount.$model"
                 placeholder="0"
-                :class="status($v.credit.amount)" trim></b-form-input>
+                :class="status($v.credit.amount)"
+                trim
+              ></b-form-input>
               <b-form-invalid-feedback v-if="!credit.amount.minValue">Please enter amount</b-form-invalid-feedback>
             </b-form-group>
           </b-col>
 
-          <b-col  xl="4" md="12" class="mb-2">
+          <b-col xl="4" md="12" class="mb-2">
             <b-form-group label="Method">
-              <b-form-select 
-                v-model="$v.credit.method.$model" 
+              <b-form-select
+                v-model="$v.credit.method.$model"
                 :options="methodOptions"
-                :class="status($v.credit.method)">
+                :class="status($v.credit.method)"
+              >
                 <template v-slot:first>
                   <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
                 </template>
@@ -79,7 +83,7 @@
             ></b-form-file>
             <b-form-invalid-feedback v-if="!credit.file.required">Please provide proof of deposit</b-form-invalid-feedback>
           </b-col>
-        </b-form-row> -->
+        </b-form-row>-->
         <b-button type="submit" variant="primary">Submit</b-button>
       </b-form>
     </b-card>
@@ -91,7 +95,7 @@ import { required } from "vuelidate/lib/validators";
 import DatePicker from "vue2-datepicker";
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-const checkAmount = (value) => value > 0
+const checkAmount = value => value > 0;
 export default {
   name: "Add",
   components: {
@@ -118,20 +122,21 @@ export default {
   validations() {
     return {
       credit: {
-        amount: { 
+        amount: {
           maxValue: checkAmount
         },
         method: { required },
         date: { required },
         time: { required }
-      }      
-    }
+      }
+    };
   },
   methods: {
     onSubmit() {
       this.$v.$touch();
       if (!this.$v.credit.$error) {
         this.$emit("fetch-data", this.$v.credit.$model);
+        this.$v.credit.$model = "";
       }
     },
     status(validation) {
@@ -143,17 +148,16 @@ export default {
     },
     checkAmnt(amnt) {
       alert(amnt);
-    },    
+    },
     notBeforeToday(date) {
       return date < today;
     },
     handleChange(value, type) {
-      if (type === 'second') {
+      if (type === "second") {
         this.open = false;
-      }        
+      }
     }
-  },
-
+  }
 };
 </script>
 

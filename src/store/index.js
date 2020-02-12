@@ -31,7 +31,8 @@ export const store = new Vuex.Store({
     reservationById: {},
     currentBalance: {},
     currentUser: {},
-    totalAmount: 0
+    totalAmount: 0,
+    message: ""
   },
   getters: {
     insurance: state => {
@@ -68,7 +69,7 @@ export const store = new Vuex.Store({
       state.passengers = payload;
     },
     SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
-    SET_ERROR_MSG: (state, payload) => state.message.push(payload),
+    SET_MESSAGE: (state, payload) => state.message.push(payload),
     SET_POST: (state, payload) => (state.post = payload),
     SET_TOKEN: (state, payload) => (state.token = payload),
     SET_RESERVATIONS: (state, payload) => (state.reservations = payload),
@@ -288,6 +289,14 @@ export const store = new Vuex.Store({
         commit("SET_LOADING", false);
       }).catch(error => {
         console.log(error.response.data);
+      });
+    },
+    SEND_BOOKING_EMAIL({ commit }, data) {
+      http.post("http://47.52.109.16/api/email/jdbadassnewbie326@gmail.com/pdf", data).then(res => {
+        console.log(res.data.payload.message);
+        commit("SET_MESSAGE", res.data.payload.message);
+      }).catch(error => {
+        console.log(error.response.data.message);
       });
     }
   },
