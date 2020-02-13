@@ -1,7 +1,7 @@
 <template>
   <b-row class="justify-content-center">
-    <b-col xl="5" md="12" class="my-auto">
-      <b-card class="mx-auto" header="Login" header-tag="div">
+    <b-col xl="5" md="12">
+      <b-card header="Login" header-tag="div">
         <b-form @submit.prevent="onSubmit">
           <b-form-group id="b2b-username" label="Email Address:" label-for="b2b-email-input">
             <b-form-input
@@ -26,9 +26,7 @@
             ></b-form-input>
             <b-form-invalid-feedback v-if="!login.password.required">Please enter your password</b-form-invalid-feedback>
           </b-form-group>
-          <b-button type="submit" variant="primary">Login</b-button>
-          {{ loading }}
-          {{ ismessage }}
+          <b-button type="submit" variant="primary" block>Login</b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -80,6 +78,14 @@ export default {
         password: password
       };
       this.$store.dispatch("LOG_ME_IN", login);
+
+      if (this.ismessage !== "") {
+         const message = this.ismessage;
+          this.$alert({
+            title: "THK Message",
+            content: message
+          });
+      }
     }
   }
 };

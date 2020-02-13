@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import http from "../utils/http"
+import router from '../router'
 
 Vue.use(Vuex)
 
@@ -32,7 +33,8 @@ export const store = new Vuex.Store({
     currentBalance: {},
     currentUser: {},
     totalAmount: 0,
-    message: ""
+    message: "",
+    isLogin: false
   },
   getters: {
     insurance: state => {
@@ -77,7 +79,8 @@ export const store = new Vuex.Store({
     SET_RESERVATION_ID: (state, payload) => (state.reservationById = payload),
     SET_CURRENT_BALANCE: (state, payload) => (state.currentBalance = payload),
     SET_CURRENT_USER: (state, payload) => (state.currentUser = payload),
-    SET_TOTAL_AMOUNT: (state, payload) => (state.totalAmount = payload)
+    SET_TOTAL_AMOUNT: (state, payload) => (state.totalAmount = payload),
+    SET_LOGGED_IN: (state, payload) => (state.isLogin = payload)
   },
   actions: {
     async GET_JOURNEY({ commit }) {
@@ -261,8 +264,11 @@ export const store = new Vuex.Store({
         commit("SET_TOKEN", res.data.payload.token);
         commit("SET_CURRENT_USER", res.data.payload.user);
         commit("SET_LOADING", false);
+        commit("SET_LOGGED_IN", true);
+        router.push("/ferry/search");
       }).catch(error => {
-        console.log(error.response.data.message);
+        commit("SET_MESSAGE", error.response.data.message);
+        //console.log(error.response.data.message);
         commit("SET_LOADING", false);
       });
     },
@@ -280,7 +286,8 @@ export const store = new Vuex.Store({
         commit("SET_RESERVATIONS", res.data.payload.reservations);
         commit("SET_LOADING", false);
       }).catch(error => {
-        console.log(error.response.data.message);
+        commit("SET_MESSAGE", error.response.data.message);
+        //console.log(error.response.data.message);
       });
     },
     GET_RESERVATION_BY_ID({ commit }, ID) {
@@ -289,7 +296,8 @@ export const store = new Vuex.Store({
         commit("SET_RESERVATION_ID", res.data.payload.reservation);
         commit("SET_LOADING", false);
       }).catch(error => {
-        console.log(error.response.data);
+        //console.log(error.response.data);
+        commit("SET_MESSAGE", error.response.data.message);
       });
     },
     SEND_BOOKING_EMAIL({ commit }, data) {
@@ -297,7 +305,8 @@ export const store = new Vuex.Store({
         console.log(res.data.payload.message);
         commit("SET_MESSAGE", res.data.payload.message);
       }).catch(error => {
-        console.log(error.response.data.message);
+        commit("SET_MESSAGE", error.response.data.message);
+        //console.log(error.response.data.message);
       });
     }
   },

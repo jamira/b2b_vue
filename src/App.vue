@@ -2,10 +2,10 @@
   <div id="app">
     <Loading :active.sync="isLoading" :is-full-page="fullPage"></Loading>
     <div id="wrapper">
-      <SideBar />
+      <SideBar/>
       <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
-          <TopNavBar />
+          <TopNavBar  />  
           <div class="container-fluid">
             <router-view />
           </div>
@@ -23,7 +23,7 @@ export default {
   name: "App",
   data() {
     return {
-      fullPage: true
+      fullPage: true,
     };
   },
   components: {
@@ -37,15 +37,11 @@ export default {
     })
   },
   methods: {
-    logIn() {
-      this.$store.dispatch("LOG_ME_IN");
-    },
     fetchJourney() {
       this.$store.dispatch("GET_JOURNEY");
     }
   },
   async created() {
-    await this.logIn();
     await this.fetchJourney();
   }
 };
