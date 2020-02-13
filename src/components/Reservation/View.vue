@@ -176,7 +176,9 @@ export default {
         .output("datauristring")
         .then(pdfAsString => {
           let data = {
-            iterinaryFile: pdfAsString
+            iterinaryFile: pdfAsString,
+            emailName: "THK Team",
+            emailContent: "Hello, Attached is Booking Itinerary"
           };
           this.$store.dispatch("SEND_BOOKING_EMAIL", data);
           this.$alert({
