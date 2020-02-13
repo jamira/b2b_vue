@@ -20,7 +20,7 @@
             <!-- <li>
               <strong>Booking Name:</strong>
               {{ formattedBookingDetails[0].booking_name }}
-            </li> -->
+            </li>-->
             <li>
               <strong>Status:</strong>
               {{ formattedBookingDetails[0].status }}
@@ -225,7 +225,7 @@ export default {
           let data = {
             iterinaryFile: pdfAsString,
             emailName: "THK Team",
-            emailContent: "Hello, Attached is Booking Itinerary"
+            emailContent: "Hello, <br / >Attached is Booking Itinerary"
           };
           this.$store.dispatch("SEND_BOOKING_EMAIL", data);
           this.$alert({
