@@ -30,7 +30,8 @@
               {{ formattedBookingDetails[0].booking_date }}
             </li>
             <li>
-              <strong>Total Pax:</strong> Total Pax
+              <strong>Total Pax:</strong>
+              {{ summaryTrip.totalPax }}
             </li>
           </ul>
         </div>

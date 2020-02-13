@@ -73,17 +73,16 @@
           </b-col>
         </b-form-row>
 
-        <!-- <b-form-row>
+        <b-form-row>
           <b-col md="4" class="mb-4">
             <b-form-file
-              v-model="$v.credit.file.$model"
+              v-model="credit.file"
               placeholder="Top up proof of payment receipt..."
               drop-placeholder="Drop file here..."
-              :class="status($v.credit.file)"
             ></b-form-file>
-            <b-form-invalid-feedback v-if="!credit.file.required">Please provide proof of deposit</b-form-invalid-feedback>
+            <!-- <b-form-invalid-feedback v-if="!credit.file.required">Please provide proof of deposit</b-form-invalid-feedback> -->
           </b-col>
-        </b-form-row>-->
+        </b-form-row>
         <b-button type="submit" variant="primary">Submit</b-button>
       </b-form>
     </b-card>

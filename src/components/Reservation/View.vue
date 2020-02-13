@@ -17,7 +17,7 @@
 
             <b-list-group-item class="d-flex justify-content-between py-1">
               <span class="text-muted d-block">Journey Type:</span>
-              <span>{{ bookingDetail.journey_type === 2 ? 'Two Way' : 'One Way' }}</span>
+              <span>{{ bookingDetail.journey_type === '2' ? 'Two Way' : 'One Way' }}</span>
             </b-list-group-item>
 
             <b-list-group-item class="d-flex justify-content-between py-1">

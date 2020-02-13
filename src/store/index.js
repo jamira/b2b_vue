@@ -69,7 +69,7 @@ export const store = new Vuex.Store({
       state.passengers = payload;
     },
     SET_BOOKING_DETAILS: (state, payload) => (state.bookingDetails = payload),
-    SET_MESSAGE: (state, payload) => state.message.push(payload),
+    SET_MESSAGE: (state, payload) => state.message = payload,
     SET_POST: (state, payload) => (state.post = payload),
     SET_TOKEN: (state, payload) => (state.token = payload),
     SET_RESERVATIONS: (state, payload) => (state.reservations = payload),
@@ -252,25 +252,26 @@ export const store = new Vuex.Store({
         console.log(error);
       }
     },
-    async LOG_ME_IN({ commit }) {
-      try {
-        let res = await http.post("http://47.52.109.16/api/auth/login", {
-          email: "merchant1@test.com",
-          password: "thkpassword"
-        });
+    LOG_ME_IN({ commit }, data) {
+      commit("SET_LOADING", true);
+      // email: "merchant1@test.com",
+      // password: "thkpassword"
+      http.post("http://47.52.109.16/api/auth/login", data).then(res => {
         localStorage.setItem('token', res.data.payload.token);
         commit("SET_TOKEN", res.data.payload.token);
         commit("SET_CURRENT_USER", res.data.payload.user);
-      } catch (error) {
-        console.log(error);
-      }
+        commit("SET_LOADING", false);
+      }).catch(error => {
+        console.log(error.response.data.message);
+        commit("SET_LOADING", false);
+      });
     },
     INSERT_RESERVATION({ commit }, data) {
       http.post("http://47.52.109.16/api/reservations", data).then(res => {
         console.log(res.response.data.message);
         commit("SET_CURRENT_BALANCE", res.data.payload);
       }).catch(error => {
-        console.log(error.response.data.message);
+        commit("SET_MESSAGE", error.response.data.message);
       });
     },
     GET_RESERVATIONS({ commit }) {

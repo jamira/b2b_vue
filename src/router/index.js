@@ -6,6 +6,11 @@ Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue')
+  },
+  {
     path: '/attraction',
     name: 'attraction',
     // route level code-splitting
@@ -49,4 +54,18 @@ const router = new VueRouter({
   routes
 })
 
-export default router
+// router.beforeEach((to, from, next) => {
+//   const requiresAuth = to.matched.some(x => x.meta.requiresAuth);
+//   if (requiresAuth) {
+//     if (localStorage.getItem('token') === "") {
+//       next("/login");
+//     } else {
+//       next();
+//     }
+//   } else {
+//     next();
+//   }
+// });
+
+export default router;
+

@@ -115,22 +115,21 @@ export default {
       this.$store.dispatch("GET_RESERVATIONS");
     },
     onCancel(ID) {
-      this.isCancel = "";
-      this.$bvModal
-        .msgBoxConfirm(`Are you sure to cancel Booking ID ${ID}?`, {
-          centered: true,
-          title: "Please Confirm",
-          size: "sm",
-          buttonSize: "sm",
-          okVariant: "danger",
-          okTitle: "Yes, Cancel",
-          cancelTitle: "No"
+      this.$confirm({
+        title: "Confirm",
+        content: `Are you sure to cancel Booking ID ${ID}?`
+      })
+        .then(success => {
+          // Ok button pressed
+          if (success) {
+            console.log(success);
+          }
         })
-        .then(res => {
-          this.isCancel = res;
-        })
-        .catch(error => {
-          console.log(error);
+        .catch(cancel => {
+          // Cancel button pressed
+          if (cancel) {
+            console.log(cancel);
+          }
         });
     }
   },
