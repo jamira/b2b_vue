@@ -9,6 +9,7 @@ import VueMoment from 'vue-moment'
 import Vuelidate from 'vuelidate'
 import VueCurrencyFilter from 'vue-currency-filter'
 import vbMsgBox from 'bootstrap-vue-msgbox'
+import VueSession from 'vue-session'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faShip, faTicketAlt, faCreditCard } from '@fortawesome/free-solid-svg-icons'
@@ -23,6 +24,7 @@ Vue.use(VueAxios, axios)
 Vue.use(VueMoment)
 Vue.use(Vuelidate)
 Vue.use(vbMsgBox)
+Vue.use(VueSession, { persist: true })
 
 library.add(faShip, faTicketAlt, faCreditCard)
 

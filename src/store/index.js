@@ -34,7 +34,7 @@ export const store = new Vuex.Store({
     currentUser: {},
     totalAmount: 0,
     message: "",
-    isLogin: false
+    topUps: []
   },
   getters: {
     insurance: state => {
@@ -80,14 +80,14 @@ export const store = new Vuex.Store({
     SET_CURRENT_BALANCE: (state, payload) => (state.currentBalance = payload),
     SET_CURRENT_USER: (state, payload) => (state.currentUser = payload),
     SET_TOTAL_AMOUNT: (state, payload) => (state.totalAmount = payload),
-    SET_LOGGED_IN: (state, payload) => (state.isLogin = payload)
+    SET_TOPUPS: (state, payload) => (state.topUps = payload)
   },
   actions: {
     async GET_JOURNEY({ commit }) {
       commit("SET_LOADING", true);
       let tmpArray = [];
       try {
-        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFJourney');
+        let res = await http.post('http://b2bthktour.com/api/ferry-api/MFFJourney');
 
         // loop through all raw data and set new key on each item to filter the journey 
         for (let i = 0; i < res.data.length; i++) {
@@ -137,7 +137,7 @@ export const store = new Vuex.Store({
     async GET_SCHEDULE_PRICE({ commit }, data) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFSchedule', {
+        let res = await http.post('http://b2bthktour.com/api/ferry-api/MFFSchedule', {
           TicketCategory: "Normal",
           TotalPax: data.TotalPax,
           JourneyType: data.JourneyType,
@@ -200,7 +200,7 @@ export const store = new Vuex.Store({
     async CREATE_BOOKING({ commit }, data) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post('http://47.52.109.16/api/ferry-api/MFFPassengerBooking', {
+        let res = await http.post('http://b2bthktour.com/api/ferry-api/MFFPassengerBooking', {
           Username: "thktourthk",
           SecurityKey: "thktourapi888",
           BookingName: "test",
@@ -231,7 +231,7 @@ export const store = new Vuex.Store({
     async CANCEL_BOOKING({ commit }) {
       commit("SET_LOADING", true);
       try {
-        let res = await http.post("http://47.52.109.16/api/ferry-api/MFFCancelBooking");
+        let res = await http.post("http://b2bthktour.com/api/ferry-api/MFFCancelBooking");
         console.log(res.data)
       } catch (error) {
         console.log(error);
@@ -259,12 +259,12 @@ export const store = new Vuex.Store({
       commit("SET_LOADING", true);
       // email: "merchant1@test.com",
       // password: "thkpassword"
-      http.post("http://47.52.109.16/api/auth/login", data).then(res => {
+      http.post("http://b2bthktour.com/api/auth/login", data).then(res => {
+        store._vm.$session.start();
+        store._vm.$session.set('jwt', res.data.payload.token);
+        store._vm.$session.set('currentUser', res.data.payload.user);
         localStorage.setItem('token', res.data.payload.token);
-        commit("SET_TOKEN", res.data.payload.token);
-        commit("SET_CURRENT_USER", res.data.payload.user);
         commit("SET_LOADING", false);
-        commit("SET_LOGGED_IN", true);
         router.push("/ferry/search");
       }).catch(error => {
         commit("SET_MESSAGE", error.response.data.message);
@@ -273,7 +273,7 @@ export const store = new Vuex.Store({
       });
     },
     INSERT_RESERVATION({ commit }, data) {
-      http.post("http://47.52.109.16/api/reservations", data).then(res => {
+      http.post("http://b2bthktour.com/api/reservations", data).then(res => {
         console.log(res.response.data.message);
         commit("SET_CURRENT_BALANCE", res.data.payload);
       }).catch(error => {
@@ -281,7 +281,7 @@ export const store = new Vuex.Store({
       });
     },
     GET_RESERVATIONS({ commit }) {
-      http.get("http://47.52.109.16/api/reservations").then(res => {
+      http.get("http://b2bthktour.com/api/reservations").then(res => {
         commit("SET_LOADING", true);
         commit("SET_RESERVATIONS", res.data.payload.reservations);
         commit("SET_LOADING", false);
@@ -292,7 +292,7 @@ export const store = new Vuex.Store({
     },
     GET_RESERVATION_BY_ID({ commit }, ID) {
       commit("SET_LOADING", true);
-      http.get("http://47.52.109.16/api/reservations/" + ID).then(res => {
+      http.get("http://b2bthktour.com/api/reservations/" + ID).then(res => {
         commit("SET_RESERVATION_ID", res.data.payload.reservation);
         commit("SET_LOADING", false);
       }).catch(error => {
@@ -301,12 +301,33 @@ export const store = new Vuex.Store({
       });
     },
     SEND_BOOKING_EMAIL({ commit }, data) {
-      http.post("http://47.52.109.16/api/email/jdbadassnewbie326@gmail.com/pdf", data).then(res => {
+      http.post("http://b2bthktour.com/api/email/jdbadassnewbie326@gmail.com/pdf", data).then(res => {
         console.log(res.data.payload.message);
         commit("SET_MESSAGE", res.data.payload.message);
       }).catch(error => {
         commit("SET_MESSAGE", error.response.data.message);
         //console.log(error.response.data.message);
+      });
+    },
+    INSERT_TOPUP({ commit }, data) {
+      console.log(data)
+      http.post("/thk/topups", data).then(res => {
+        console.log(res.response.data.message)
+      }).catch(error => {
+        commit("SET_MESSAGE", error.response.data.message);
+        console.log(error.response.data.message);
+        commit("SET_LOADING", false);
+      });
+    },
+    GET_TOPUPS({ commit }) {
+      http.get("/thk/topups").then(res => {
+        console.log(res)
+        commit("SET_LOADING", true);
+        commit("SET_TOPUPS", res.data.payload.topups)
+        commit("SET_LOADING", false);
+      }).catch(error => {
+        commit("SET_MESSAGE", error.response.data.message);
+        commit("SET_LOADING", false);
       });
     }
   },

@@ -9,12 +9,15 @@
     <b-collapse id="nav-collapse" is-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-nav-item to="/top-up">Account Balance: {{ currentUser.account_balance | currency }}</b-nav-item>
+        <b-nav-item to="/top-up">Account Balance: {{ getCurrentUser.account_balance | currency }}</b-nav-item>
         <div class="topbar-divider d-none d-sm-block"></div>
         <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
           <template v-slot:button-content>
-          <div>Howdy, <span class="py-2"> {{ currentUser.name }} </span></div> 
+            <div>
+              Howdy,
+              <span class="py-2">{{ getCurrentUser.name }}</span>
+            </div>
           </template>
           <b-dropdown-item @click="logOut">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
@@ -42,15 +45,16 @@ export default {
   computed: {
     ...mapState({
       currentUser: state => state.currentUser
-    })
+    }),
+    getCurrentUser() {
+      return this.$session.get("currentUser");
+    }
   },
   methods: {
     logOut() {
-      this.$store.commit("SET_LOGGED_IN", false);
-      this.$store.commit("SET_TOKEN", "");
-      localStorage.removeItem("token");
-      this.$store.commit("SET_CURRENT_USER", {});
-      this.$router.replace("/login");
+      this.$session.destroy();
+      localStorage.clear();
+      this.$router.push("/login");
     }
   }
 };

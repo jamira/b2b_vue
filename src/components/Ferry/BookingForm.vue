@@ -242,8 +242,11 @@ export default {
     },
     checkBalance() {
       let access = false;
-      if (this.currentUser.account_balance > this.totalAmount) {
+      let currentUser = this.$session.get("currentUser");
+      if (currentUser.account_balance > this.totalAmount) {
         access = true;
+        let balance = currentUser.account_balance - this.totalAmount;
+        this.$session.set("updatedBalance", balance);
       }
 
       return access;

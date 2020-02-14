@@ -25,7 +25,7 @@
       </template>
       <template v-slot:cell(action)="row">
         <b-link :to="{ name: 'view', params: {id: row.value }}" class="mr-3">View</b-link>
-        <b-link @click.prevent="onCancel(row.value)">Cancel</b-link>
+        <b-link @click.prevent="onCancel(row.value)">Cancel {{ pedingId }}</b-link>
       </template>
     </b-table>
     <b-pagination
@@ -47,7 +47,9 @@ export default {
       checked1: null,
       isCancel: "",
       perPage: 8,
-      currentPage: 1
+      currentPage: 1,
+      isStatus: false,
+      pedingId: null
     };
   },
   components: {},
@@ -122,7 +124,9 @@ export default {
         .then(success => {
           // Ok button pressed
           if (success) {
-            console.log(success);
+            //update API change status to Pending
+            this.isStatus = true;
+            this.pedingId = ID;
           }
         })
         .catch(cancel => {

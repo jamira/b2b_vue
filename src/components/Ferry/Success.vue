@@ -78,6 +78,7 @@
               <strong style="color: #000;">Ferry Ticket Fare & Service Fees Details</strong>
             </template>
           </b-table>
+          <b-img :src="guide" alt="THK Guide" class="mx-auto d-block" width="1200"></b-img>
         </div>
       </div>
     </div>
@@ -88,12 +89,14 @@
 <script>
 import html2pdf from "html2pdf.js";
 import logo from "../../assets/thk-letter-head.png";
+import guide from "../../assets/guide.jpeg";
 import { mapState } from "vuex";
 export default {
   name: "Passenger",
   data() {
     return {
-      logo: logo
+      logo: logo,
+      guide: guide
     };
   },
   computed: {
@@ -226,7 +229,7 @@ export default {
           let data = {
             iterinaryFile: pdfAsString,
             emailName: "THK Team",
-            emailContent: "Hello, <br / >Attached is Booking Itinerary"
+            emailContent: "Hello, Attached is Booking Itinerary"
           };
           this.$store.dispatch("SEND_BOOKING_EMAIL", data);
           this.$alert({

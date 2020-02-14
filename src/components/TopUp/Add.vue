@@ -22,12 +22,8 @@
                 v-model="$v.credit.method.$model"
                 :options="methodOptions"
                 :class="status($v.credit.method)"
-              >
-                <template v-slot:first>
-                  <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
-                </template>
-              </b-form-select>
-              <!-- <b-form-invalid-feedback v-if="!credit.method.required">Please select option method</b-form-invalid-feedback> -->
+              ></b-form-select>
+              <b-form-invalid-feedback v-if="!credit.method.required">Please select option method</b-form-invalid-feedback>
             </b-form-group>
           </b-col>
 
@@ -65,7 +61,7 @@
           <b-col class="mb-4">
             <b-form-textarea
               id="remark"
-              v-model="credit.remark"
+              v-model="credit.remarks"
               placeholder="Additional note..."
               rows="3"
               max-rows="6"
@@ -76,11 +72,13 @@
         <b-form-row>
           <b-col md="4" class="mb-4">
             <b-form-file
-              v-model="credit.file"
-              placeholder="Top up proof of payment receipt..."
-              drop-placeholder="Drop file here..."
+              v-model="$v.credit.file.$model"
+              :class="status($v.credit.file)"
+              class="mt-3"
+              plain
+              @change="imageFileChanged($event)"
             ></b-form-file>
-            <!-- <b-form-invalid-feedback v-if="!credit.file.required">Please provide proof of deposit</b-form-invalid-feedback> -->
+            <b-form-invalid-feedback v-if="!$v.credit.file.$error">Please provide proof of deposit</b-form-invalid-feedback>
           </b-col>
         </b-form-row>
         <b-button type="submit" variant="primary">Submit</b-button>
@@ -90,6 +88,13 @@
 </template>
 
 <script>
+const file_size_validation = value => {
+  if (!value) {
+    return true;
+  }
+  let file = value;
+  return file.size < 6291456;
+};
 import { required } from "vuelidate/lib/validators";
 import DatePicker from "vue2-datepicker";
 const today = new Date();
@@ -103,7 +108,7 @@ export default {
   data() {
     return {
       open: false,
-      items: [],
+      file: "",
       methodOptions: [
         { value: "cash", text: "Cash" },
         { value: "cheque", text: "Cheque" },
@@ -111,10 +116,11 @@ export default {
       ],
       credit: {
         amount: "",
-        method: null,
+        method: "",
         date: "",
         time: "",
-        remark: ""
+        remarks: "",
+        file: null
       }
     };
   },
@@ -126,7 +132,8 @@ export default {
         },
         method: { required },
         date: { required },
-        time: { required }
+        time: { required },
+        file: { file_size_validation }
       }
     };
   },
@@ -134,8 +141,8 @@ export default {
     onSubmit() {
       this.$v.$touch();
       if (!this.$v.credit.$error) {
+        console.log(this.$v.credit);
         this.$emit("fetch-data", this.$v.credit.$model);
-        this.$v.credit.$model = "";
       }
     },
     status(validation) {
@@ -145,9 +152,6 @@ export default {
         ? "is-valid"
         : "";
     },
-    checkAmnt(amnt) {
-      alert(amnt);
-    },
     notBeforeToday(date) {
       return date < today;
     },
@@ -155,6 +159,14 @@ export default {
       if (type === "second") {
         this.open = false;
       }
+    },
+    imageFileChanged(event) {
+      var files = event.target.files || event.dataTransfer.files;
+      if (!files.length) {
+        return;
+      }
+
+      this.file = files[0].name;
     }
   }
 };
